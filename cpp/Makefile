@@ -1,8 +1,10 @@
 # Compiler and compiler flags
 CC = g++
-CFLAGS = -Wall -g -lssl -lcrypto
+CFLAGS = -Wall -g
 
-TARGETS = encrypt test speed
+TARGETS = encrypt decrypt test speed
+
+OPENSSL = -lssl -lcrypto
 
 SRCS = EDES.cpp encrypt.cpp test.cpp decrypt.cpp speed.cpp
 
@@ -18,10 +20,10 @@ decrypt: EDES.o decrypt.o
 	$(CC) $(CFLAGS) -o encrypt EDES.o decrypt.o
 
 test: EDES.o test.o
-	$(CC) $(CFLAGS) -o test EDES.o test.o
+	$(CC) $(CFLAGS) -o test EDES.o test.o 
 
 speed: EDES.o speed.o
-	$(CC) $(CFLAGS) -o speed EDES.o speed.o
+	$(CC) $(CFLAGS) -o speed EDES.o speed.o $(OPENSSL)
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) -c $< -o $@

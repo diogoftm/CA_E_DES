@@ -31,6 +31,9 @@
 *.out
 *.app
 
+.vscode/
+settings.json
+
 encrypt
 decrypt
 speed

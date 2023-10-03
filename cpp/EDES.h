@@ -1,15 +1,15 @@
-#ifndef DES_FUNCTIONS_H
-#define DES_FUNCTIONS_H
+#pragma once
 
 #include <cstdint>
-#include <algorithm> 
+#include <algorithm>
 
-namespace EDES {
-    // public methods
-    uint8_t* encrypt(uint8_t* in, uint32_t inSize);
-    
+class EDES
+{
+public:
+    uint8_t *encrypt(uint8_t *in, uint32_t inSize);
 
-        
+private:
+    uint8_t *f(uint8_t *in, uint8_t *sbox);
+    uint8_t *fN(uint8_t *in, uint8_t *sbox);
+    uint8_t *processBlock(uint8_t *in);
 };
-
-#endif // DES_FUNCTIONS_H

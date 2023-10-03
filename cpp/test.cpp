@@ -11,7 +11,10 @@ int main() {
                         0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01};
-    uint8_t* result = EDES::encrypt(input, sizeof(input) / sizeof(input[0]));
+
+    EDES edes = EDES();
+
+    uint8_t* result = edes.encrypt(input, sizeof(input) / sizeof(input[0]));
     
     for (int i = 0; i < 64; i++){
         if(i%8==0) std::cout << "\n";
