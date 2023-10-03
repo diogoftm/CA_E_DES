@@ -1,0 +1,33 @@
+# Compiler and compiler flags
+CC = g++
+CFLAGS = -Wall -g -lssl -lcrypto
+
+TARGETS = encrypt test speed
+
+SRCS = EDES.cpp encrypt.cpp test.cpp decrypt.cpp speed.cpp
+
+OBJS = $(SRCS:.cpp=.o)
+
+
+all: $(TARGETS)
+
+encrypt: EDES.o encrypt.o
+	$(CC) $(CFLAGS) -o encrypt EDES.o encrypt.o
+
+decrypt: EDES.o decrypt.o
+	$(CC) $(CFLAGS) -o encrypt EDES.o decrypt.o
+
+test: EDES.o test.o
+	$(CC) $(CFLAGS) -o test EDES.o test.o
+
+speed: EDES.o speed.o
+	$(CC) $(CFLAGS) -o speed EDES.o speed.o
+
+%.o: %.cpp
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -f $(OBJS) $(TARGETS)
+
+# Phony targets
+.PHONY: all clean
