@@ -14,7 +14,7 @@ OBJS = $(SRCS:.cpp=.o)
 all: $(TARGETS)
 
 encrypt: EDES.o encrypt.o
-	$(CC) $(CFLAGS) -o encrypt EDES.o encrypt.o
+	$(CC) $(CFLAGS) -o encrypt EDES.o encrypt.o $(OPENSSL)
 
 decrypt: EDES.o decrypt.o
 	$(CC) $(CFLAGS) -o encrypt EDES.o decrypt.o
