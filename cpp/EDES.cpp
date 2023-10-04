@@ -313,27 +313,74 @@ uint8_t *EDES::fN(uint8_t *in, uint8_t *sbox)
     return result;
 }
 
-uint8_t *EDES::processBlock(uint8_t *in)
+// for decryption
+uint8_t *EDES::fNR(uint8_t *in, uint8_t *sbox)
 {
-    uint8_t *sboxs[] = {SBox_01, SBox_02, SBox_03, SBox_04, SBox_05, SBox_06, SBox_07,
+    uint8_t l[4] = {in[0], in[1], in[2], in[3]};
+    uint8_t r[4] = {in[4], in[5], in[6], in[7]};
+
+    uint8_t *rf = EDES::f(l, sbox);
+
+    uint8_t *result = new uint8_t[8];
+
+    for (int i = 0; i < 4; i++)
+    {
+        result[i] =r[i] ^ rf[i];
+    }
+    for (int i = 0; i < 4; i++)
+    {
+        result[i + 4] = l[i];
+    }
+
+    delete[] rf;
+    return result;
+}
+
+uint8_t *EDES::processBlock(uint8_t *in, uint8_t reverseFlag)
+{
+    uint8_t *sboxs[16] = {SBox_01, SBox_02, SBox_03, SBox_04, SBox_05, SBox_06, SBox_07,
                         SBox_08, SBox_09, SBox_10, SBox_11, SBox_12, SBox_13, SBox_14,
                         SBox_15, SBox_16};
     uint8_t *result = in;
     for (int i = 0; i < 16; i++)
     {
-        result = fN(result, sboxs[i]);
+        if(reverseFlag==0) result = fN(result, sboxs[i]);
+        else result = fNR(result, sboxs[15 - i]);
     }
     return result;
 }
 
+// public methods
+
+void EDES::set_key(const uint8_t key[32]){
+    // to do: decide & implement the creation of the sboxs
+    // dividir a chave em 16 partes (2 bytes cada)
+    // xor byte a byte uma sbox default
+    // usar o byte mais ou menos significativo de forma alternada
+}
+
 uint8_t *EDES::encrypt(uint8_t *in, uint32_t inSize)
 {
-
+    assert((inSize%8 == 0));
     uint8_t *result = new uint8_t[inSize];
-    for (int i = 0; i < inSize; i += 8)
+    for (uint32_t i = 0; i < inSize; i += 8)
     {
         uint8_t block[] = {in[i], in[i + 1], in[i + 2], in[i + 3], in[i + 4], in[i + 5], in[i + 6], in[i + 7]};
-        uint8_t *r = processBlock(block);
+        uint8_t *r = processBlock(block, 0);
+        std::copy(r, r + 8, result + i);
+        delete[] r;
+    }
+    return result;
+}
+
+uint8_t *EDES::decrypt(uint8_t *in, uint32_t inSize)
+{
+    assert((inSize%8 == 0));
+    uint8_t *result = new uint8_t[inSize];
+    for (uint32_t i = 0; i < inSize; i += 8)
+    {
+        uint8_t block[] = {in[i], in[i + 1], in[i + 2], in[i + 3], in[i + 4], in[i + 5], in[i + 6], in[i + 7]};
+        uint8_t *r = processBlock(block, 1);
         std::copy(r, r + 8, result + i);
         delete[] r;
     }

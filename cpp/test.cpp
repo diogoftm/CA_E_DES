@@ -16,12 +16,26 @@ int main() {
 
     uint8_t* result = edes.encrypt(input, sizeof(input) / sizeof(input[0]));
     
+    std::cout << "cipher text:\n";
+
     for (int i = 0; i < 64; i++){
         if(i%8==0) std::cout << "\n";
         printf("%X ",result[i]);
     }
+
+    std::cout << "\n plain text:";
+
+    uint8_t* result_plain = edes.decrypt(result, sizeof(input) / sizeof(input[0]));
+
+    for (int i = 0; i < 64; i++){
+        if(i%8==0) std::cout << "\n";
+        printf("%X ",result_plain[i]);
+    }
+
     std::cout << "\n\n";
-    delete[] result; 
+    
+    delete[] result;
+    delete[] result_plain;
 
     return 0;
 }
