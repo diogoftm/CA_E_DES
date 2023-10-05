@@ -1,6 +1,6 @@
 # Compiler and compiler flags
 CC = g++
-CFLAGS = -Wall -g
+CFLAGS = -Wall -g -w
 
 TARGETS = encrypt decrypt test speed
 
