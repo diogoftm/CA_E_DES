@@ -13,14 +13,14 @@ OBJS = $(SRCS:.cpp=.o)
 
 all: $(TARGETS)
 
-encrypt: EDES.o encrypt.o
+encrypt: EDES.o encrypt.o 
 	$(CC) $(CFLAGS) -o encrypt EDES.o encrypt.o $(OPENSSL)
 
 decrypt: EDES.o decrypt.o
-	$(CC) $(CFLAGS) -o encrypt EDES.o decrypt.o
+	$(CC) $(CFLAGS) -o decrypt EDES.o decrypt.o $(OPENSSL)
 
 test: EDES.o test.o
-	$(CC) $(CFLAGS) -o test EDES.o test.o 
+	$(CC) $(CFLAGS) -o test EDES.o test.o $(OPENSSL)
 
 speed: EDES.o speed.o
 	$(CC) $(CFLAGS) -o speed EDES.o speed.o $(OPENSSL)
