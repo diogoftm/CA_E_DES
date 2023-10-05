@@ -118,7 +118,7 @@ int main(int argc, char const* argv[]) {
     // Check command line arguments
     if(argc < 3){
         if(argc == 2 && strcmp(argv[1],"-h") == 0){
-            std::cout << "usage: ./encrypt <password> <ciphertext> [-s]";
+            std::cout << "usage: ./encrypt <password> <ciphertext> [-s]\n";
         }
         std::cerr << "Invalid number of arguments. Use -h for help. \n";
         return -1;
