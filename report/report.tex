@@ -1,0 +1,83 @@
+\documentclass{article} % Use the report class instead of article
+\usepackage{titlesec}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{tabularx}
+
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\graphicspath{{./assets/images/}}
+
+\title{%
+    \includegraphics[width=0.3\linewidth]{./assets/logo.pdf}\\[20pt]
+    \Huge \bfseries Criptografia aplicada \\[10pt]
+    \Large EDES
+}
+\author{Tiago Silvestre, 103554 \\ Diogo Matos, ......}
+\date{\today}
+
+
+\begin{document}
+
+
+
+\maketitle
+
+\newpage
+
+\tableofcontents
+
+\section{Introduction}
+Introduction ...
+
+\section{Implementation}
+
+\subsection{Encryption}
+Explain how encryption was implemented ...
+
+\subsection{Decryption}
+Explain how decryption was implemented ...
+
+\subsection{S-Boxes Generation}
+Explain how s-boxes are generated ...
+
+\section {Discussion}
+
+\subsection{Encryption}
+Explain why encryption works
+
+\subsection{Decryption}
+Explain why decryption works
+
+\subsection {S-Boxes}
+Explain why S-Boxes respect the requirements ...
+
+\section{Statistics}
+Write about algorithm performance ... (compare with DES)
+Show some graphs about avg time, fastest time etc ...
+
+
+
+\end{document}
