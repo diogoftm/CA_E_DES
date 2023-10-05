@@ -77,6 +77,68 @@ TEST_F(EDESTest, EncryptionAndDecryption)
     delete[] decrypted;
 }
 
+double getKeyBitFlipSboxPercentage(uint8_t* k1, uint8_t* k2) {
+    SBOXES orig, modified;
+
+    SBOXESGenerator::generate(k1, orig);
+    SBOXESGenerator::generate(k2, orig);
+
+    int bitsFlipped = 0;
+
+    for(unsigned int i=0;i<4096;i++) {
+        uint8_t b1, b2;
+        b1 = orig[i / 256][i % 256];
+        b2 = modified[i / 256][i % 256];
+
+        for(int j=0;j<8;j++) {
+            uint8_t bit1 = (b1 >> j) & 0x01;
+            uint8_t bit2 = (b2 >> j) & 0x01;
+
+            if(bit1 != bit2)
+                bitsFlipped++;
+        }
+    }
+
+    return 100.0 * (double)bitsFlipped / (4096 * 8.0);
+}
+
+void flip_key_1_bit_randomly(uint8_t* key, int keysize) {
+    int rpos = rand() % keysize;
+    int ipos = rand() % 8;
+
+    key[rpos] ^= (0x1 << ipos);
+}
+
+
+/*
+    Make sure bit flips in the key don't produce 
+*/
+TEST(SboxGenerator, SBOXEntropy)
+{
+    uint8_t modifiedKey[32];
+    memcpy(modifiedKey, rkey, sizeof(rkey));
+
+    uint8_t k1[32];
+    uint8_t k2[32];
+
+    memcpy(k1, rkey, sizeof(rkey));
+    memcpy(k2, rkey, sizeof(rkey));
+
+    double totalPercentage = 0.0;
+
+    for(unsigned int i=0;i< 2500; i++) {
+        flip_key_1_bit_randomly(k2, 32);
+        double cpercentage = getKeyBitFlipSboxPercentage(k1,k2);
+        totalPercentage += cpercentage;
+        // total SBOXES contains 32768 bits, so a difference greater than 1.5% is a bad sign
+        ASSERT_NEAR(cpercentage, 50, 1.5);
+        memcpy(k1, k2, 32);
+    }
+
+    double avg_percentage = totalPercentage / 2500.0;
+    ASSERT_NEAR(avg_percentage, 50, 0.5);
+}
+
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
