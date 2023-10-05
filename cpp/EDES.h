@@ -8,6 +8,14 @@ typedef uint8_t SBOX[256];
 
 typedef SBOX SBOXES[16];
 
+
+class SBOXESGenerator {
+    public:
+        static void generate(uint8_t key[32], SBOXES& sboxes);
+    private:
+        static void generate_derived_key(uint8_t key[32], uint8_t derived[8192]);
+};
+
 class EDES
 {
 public:
@@ -17,6 +25,7 @@ public:
     uint8_t *decrypt(uint8_t *in, uint32_t inSize);
     void set_key(const uint8_t key[32]);
 
+
 private:
     uint8_t *f(uint8_t *in, uint8_t *sbox);
     uint8_t *fN(uint8_t *in, uint8_t *sbox);
@@ -24,7 +33,6 @@ private:
     uint8_t *processBlock(uint8_t *in, uint8_t reverseFlag);
 
     void setupSboxes();
-    void generate_derived_key(uint8_t key[32], uint8_t derived[8192]);
 
     uint8_t key[32];
     SBOXES sboxes;

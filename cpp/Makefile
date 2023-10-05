@@ -2,11 +2,13 @@
 CC = g++
 CFLAGS = -Wall -g
 
-TARGETS = encrypt decrypt test speed
+TARGETS = encrypt decrypt test speed test_edes
 
 OPENSSL = -lssl -lcrypto
 
-SRCS = EDES.cpp encrypt.cpp test.cpp decrypt.cpp speed.cpp
+GTEST = -lgtest -lgtest_main
+
+SRCS = EDES.cpp encrypt.cpp test.cpp decrypt.cpp speed.cpp test_edes.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 
@@ -21,6 +23,9 @@ decrypt: EDES.o decrypt.o
 
 test: EDES.o test.o
 	$(CC) $(CFLAGS) -o test EDES.o test.o $(OPENSSL)
+
+test_edes: EDES.o test_edes.o
+	$(CC) $(CFLAGS) -o test_edes EDES.o test_edes.o $(OPENSSL) $(GTEST)
 
 speed: EDES.o speed.o
 	$(CC) $(CFLAGS) -o speed EDES.o speed.o $(OPENSSL)

@@ -6,17 +6,47 @@
 // TO DO:
 // - add assertions
 
-EDES::EDES()
+void SBOXESGenerator::generate(uint8_t key[32], SBOXES &sboxes)
 {
-    uint8_t default_key[32];
+    uint8_t derivedKey[8192];
 
-    for (unsigned int i = 0; i < 32; i++)
-        default_key[i] = 0;
+    SBOXESGenerator::generate_derived_key(key, derivedKey);
 
-    set_key(default_key);
+    uint16_t *halfWordsDerivedKey = (uint16_t *)derivedKey;
+
+    uint16_t shuffledArray[4096];
+
+    for (uint16_t i = 0; i < 4096; i++)
+        shuffledArray[i] = i;
+
+    for (uint16_t i = 0; i < 4095; i++)
+    {
+        uint16_t j = halfWordsDerivedKey[i] % 4096;
+
+        uint16_t valueJ = shuffledArray[j];
+        uint16_t valueI = shuffledArray[i];
+
+        shuffledArray[j] = valueI;
+        shuffledArray[i] = valueJ;
+    }
+
+    uint8_t currentValue = 0;
+    uint32_t currentIteration = 0;
+    for (uint32_t idx = 0; idx < 4096; idx++)
+    {
+        uint32_t position = shuffledArray[idx];
+        sboxes[position / 256][position % 256] = currentValue;
+
+        currentIteration++;
+        if (currentIteration >= 16)
+        {
+            currentIteration = 0;
+            currentValue++;
+        }
+    }
 }
 
-void EDES::generate_derived_key(uint8_t key[32], uint8_t derived[8192])
+void SBOXESGenerator::generate_derived_key(uint8_t key[32], uint8_t derived[8192])
 {
     for (uint32_t i = 0; i < 8192; i++)
         derived[i] = 0x00;
@@ -68,44 +98,19 @@ void EDES::generate_derived_key(uint8_t key[32], uint8_t derived[8192])
     }
 }
 
+EDES::EDES()
+{
+    uint8_t default_key[32];
+
+    for (unsigned int i = 0; i < 32; i++)
+        default_key[i] = 0;
+
+    set_key(default_key);
+}
+
 void EDES::setupSboxes()
 {
-    uint8_t derivedKey[8192];
-
-    generate_derived_key(this->key, derivedKey);
-
-    uint16_t *halfWordsDerivedKey = (uint16_t *)derivedKey;
-
-    uint16_t shuffledArray[4096];
-
-    for (uint16_t i = 0; i < 4096; i++)
-        shuffledArray[i] = i;
-
-    for (uint16_t i = 0; i < 4095; i++)
-    {
-        uint16_t j = halfWordsDerivedKey[i] % 4096;
-
-        uint16_t valueJ = shuffledArray[j];
-        uint16_t valueI = shuffledArray[i];
-
-        shuffledArray[j] = valueI;
-        shuffledArray[i] = valueJ;
-    }
-
-    uint8_t currentValue = 0;
-    uint32_t currentIteration = 0;
-    for (uint32_t idx = 0; idx < 4096; idx++)
-    {
-        uint32_t position = shuffledArray[idx];
-        sboxes[position / 256][position % 256] = currentValue;
-
-        currentIteration++;
-        if (currentIteration >= 16)
-        {
-            currentIteration = 0;
-            currentValue++;
-        }
-    }
+    SBOXESGenerator::generate(this->key, this->sboxes);
 }
 /*
  */
