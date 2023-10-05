@@ -98,6 +98,10 @@ uint8_t* decrypt(uint8_t* key, uint8_t* ciphertext, uint32_t length){
 
 uint8_t *decryptDES(uint8_t *key, uint8_t *ciphertext, uint32_t length)
 {
+
+    
+    // Sticking with the low-level DES API due to prior issues with EVP decryption
+    
     int len;
 
     uint8_t *out = new uint8_t[length];
