@@ -19,7 +19,7 @@ size_t calcDecodeLength(const char* b64input) {
 }
 
 // Base64 decode
-int Base64Decode(char* b64message, unsigned char** buffer, size_t* length) { //Decodes a base64 encoded string
+int Base64Decode(char* b64message, unsigned char** buffer, size_t* length) {
 	BIO *bio, *b64;
 
     int decodeLen = calcDecodeLength(b64message);
@@ -39,8 +39,7 @@ int Base64Decode(char* b64message, unsigned char** buffer, size_t* length) { //D
 }
 
 // Derive key and iv from password
-void deriveKey(const string& pass, unsigned char* salt, unsigned char* key, unsigned char* iv )
-{
+void deriveKey(const string& pass, unsigned char* salt, unsigned char* key, unsigned char* iv ) {
     EVP_BytesToKey(EVP_aes_256_cbc(), EVP_sha1(), salt, (unsigned char *)pass.c_str(), pass.length(), 1, key, iv);
 }
 
@@ -96,10 +95,7 @@ uint8_t* decrypt(uint8_t* key, uint8_t* ciphertext, uint32_t length){
     return plaintext;
 }
 
-uint8_t *decryptDES(uint8_t *key, uint8_t *ciphertext, uint32_t length)
-{
-
-    
+uint8_t *decryptDES(uint8_t *key, uint8_t *ciphertext, uint32_t length){
     // Sticking with the low-level DES API due to prior issues with EVP decryption
     
     int len;
@@ -115,14 +111,7 @@ uint8_t *decryptDES(uint8_t *key, uint8_t *ciphertext, uint32_t length)
 
     }
     
-
-    
     return out;
-    
-
-    
-
-
 }
 
 int main(int argc, char const *argv[])
@@ -136,6 +125,7 @@ int main(int argc, char const *argv[])
         if (argc == 2 && strcmp(argv[1], "-h") == 0)
         {
             std::cout << "usage: ./encrypt <password> <ciphertext> [-s]\n";
+            return 0;
         }
         std::cerr << "Invalid number of arguments. Use -h for help. \n";
         return -1;

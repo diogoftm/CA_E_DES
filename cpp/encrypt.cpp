@@ -108,6 +108,7 @@ int main(int argc, char const *argv[])
         if (argc == 2 && strcmp(argv[1], "-h") == 0)
         {
             std::cout << "usage: ./encrypt <password> <plaintext> [-s]\n";
+            return 0;
         }
         std::cerr << "Invalid number of arguments. Use -h for help. \n";
         return -1;
@@ -138,6 +139,9 @@ int main(int argc, char const *argv[])
     unsigned char iv[32];     // not used
     std::string psw(argv[1]); // password from user
     deriveKey(psw, salt, key, iv);
+
+    for(int i = 0; i<32; i++) std::cout << key[i];
+    std::cout << "\n";
 
     // Padding
     uint8_t *paddedData = padPKCS7(reinterpret_cast<uint8_t *>(plaintext), plainLen, 8);
