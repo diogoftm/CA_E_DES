@@ -67,7 +67,7 @@ TEST_F(EDESTest, EncryptionAndDecryption)
 
     uint8_t *decrypted = edes.decrypt(encrypted, sizeof(input));
 
-    for (int i = 0; i < sizeof(input); i++)
+    for (unsigned int i = 0; i < sizeof(input); i++)
     {
         EXPECT_EQ(decrypted[i], input[i]);
     }

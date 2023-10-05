@@ -8,14 +8,14 @@ OPENSSL = -lssl -lcrypto
 
 GTEST = -lgtest -lgtest_main
 
-SRCS = EDES.cpp encrypt.cpp test.cpp decrypt.cpp speed.cpp test_edes.cpp
+SRCS =  EDES.cpp encrypt.cpp test.cpp decrypt.cpp speed.cpp test_edes.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 
 
 all: $(TARGETS)
 
-encrypt: EDES.o encrypt.o 
+encrypt: EDES.o encrypt.o
 	$(CC) $(CFLAGS) -o encrypt EDES.o encrypt.o $(OPENSSL)
 
 decrypt: EDES.o decrypt.o
