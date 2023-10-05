@@ -89,6 +89,7 @@ uint8_t* decrypt(uint8_t* key, uint8_t* ciphertext, uint32_t length){
 
     // Encrypt
     // todo: init with key
+    edes.set_key(key);
     uint8_t* plaintext = edes.decrypt(ciphertext, length);
 
     return plaintext;

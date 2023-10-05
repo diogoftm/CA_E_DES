@@ -41,7 +41,7 @@ uint8_t* encrypt(uint8_t* key, uint8_t* plaintext, uint32_t length){
     EDES edes = EDES();
 
     // Encrypt
-    // todo: init with key
+    edes.set_key(key);
     uint8_t* ciphertext = edes.encrypt(plaintext, length);
 
     return ciphertext;
