@@ -2,6 +2,7 @@
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 #include <iostream>
+#include <stdexcept>
 
 // TO DO:
 // - add assertions
@@ -60,36 +61,31 @@ void SBOXESGenerator::generate_derived_key(uint8_t key[32], uint8_t derived[8192
         EVP_MD_CTX *mdCtx = EVP_MD_CTX_new();
         if (mdCtx == nullptr)
         {
-            std::cerr << "Error: Memory allocation failure for mdCtx." << std::endl;
-            return;
+            throw std::runtime_error("Memory allocation failure for mdCtx");
         }
 
         if (EVP_DigestInit_ex(mdCtx, EVP_sha256(), NULL) != 1)
         {
-            std::cerr << "Error: EVP_DigestInit_ex failed." << std::endl;
             EVP_MD_CTX_free(mdCtx);
-            return;
+            throw std::runtime_error("EVP_DigestInit_ex failed");
         }
 
         if (EVP_DigestUpdate(mdCtx, key, 32) != 1)
         {
-            std::cerr << "Error: EVP_DigestUpdate failed." << std::endl;
             EVP_MD_CTX_free(mdCtx);
-            return;
+            throw std::runtime_error("EVP_DigestUpdate failed");
         }
 
         if (derived_offset != 0 && EVP_DigestUpdate(mdCtx, derived + derived_offset - SHA256_DIGEST_LENGTH, 32) != 1)
         {
-            std::cerr << "Error: EVP_DigestUpdate failed." << std::endl;
             EVP_MD_CTX_free(mdCtx);
-            return;
+            throw std::runtime_error("EVP_DigestUpdate failed");
         }
 
         if (EVP_DigestFinal_ex(mdCtx, derived + derived_offset, &mdLen) != 1)
         {
-            std::cerr << "Error: EVP_DigestFinal_ex failed." << std::endl;
             EVP_MD_CTX_free(mdCtx);
-            return;
+            throw std::runtime_error("EVP_DigestFinal_ex failed");
         }
 
         derived_offset += SHA256_DIGEST_LENGTH;
