@@ -1,11 +1,15 @@
+% install texlive-science to enable algorithm package %
+
 \documentclass{article} % Use the report class instead of article
 \usepackage{titlesec}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{color}
+\usepackage{amsmath} % Add this line to use \text
 \usepackage{tabularx}
-
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
@@ -61,7 +65,74 @@ Explain how encryption was implemented ...
 Explain how decryption was implemented ...
 
 \subsection{S-Boxes Generation}
-Explain how s-boxes are generated ...
+For the purpose of generating S-Boxes, the process is divided in three phases:
+\begin{enumerate}
+  \item Generate a derived array of 8192 bytes from the a 32 byte key
+  \item Mix a sorted array based on the derived array generated
+  \item Fill S-Boxes bytes with uniformely distributed values ranging from 0 up to 255 based on the shuffled array generated in step 2. 
+\end{enumerate}
+
+\subsubsection{Generate a derived array from the key}
+This step has an input of a 32 byte key ($K$) and it should return a 8192 byte array ($D$).
+In order to calculate derived array values the following algorithm should be used:
+
+\begin{equation}
+  D_0 = SHA256(K)
+\end{equation}
+
+\begin{equation}
+  D_i = \text{SHA256}(K, D_{i-1}), \text{ for } i \in \{1, \ldots, 255\}
+\end{equation}
+
+\subsubsection{Mix sorted array}
+In this phase a sorted array ($A$) is shuffled based on the derived array.
+The sorted array should be sorted in the following way:
+
+\begin{equation}
+  A[i] = i \text{ for } i \in \{0, \ldots, 4095\}
+\end{equation}
+
+Then the array should be iterated from $0$ up to $4094$ and for each iteration pairs of two bytes (mod $4096$) from $D$ should be picked and swapped with current iteration position.
+
+\begin{algorithm}
+  \caption{Array Initialization and Shuffling}
+  \begin{algorithmic}[1]
+  \State Initialize array $A$ with $4096$ elements
+  \For{$i \gets 0$ \textbf{to} $4095$}
+      \State $A[i] \gets i$
+  \EndFor
+  
+  \For{$i \gets 0$ \textbf{to} $4094$}
+      \State $pos \gets (D[2 \cdot (i+1) - 1] \ll 8) + D[2 \cdot i]) \mod 4096$
+      \State Swap($A$, $i$, $pos$)
+  \EndFor
+  \end{algorithmic}
+\end{algorithm}
+
+
+\subsubsection{Fill S-boxes bytes}
+
+\begin{algorithm}
+  \caption{Fill S-boxes}
+  \begin{algorithmic}[1]
+
+    \State $currentValue \gets 0$
+    \State $currentIteration \gets 0$
+
+    \For{$i \gets 0$ \textbf{to} $4095$}
+      \State $position \gets Shuffled[i]$
+      \State $box\_number \gets \lfloor position / 256 \rfloor$
+      \State $box\_position \gets position \mod 256$
+      \State $Box[box\_number][box\_position] \gets currentValue$
+      \State $currentIteration \gets currentIteration + 1$
+      \If{$currentIteration \geq 16$}
+          \State $currentIteration \gets 0$
+          \State $currentValue \gets currentValue + 1$
+      \EndIf
+    \EndFor
+
+  \end{algorithmic}
+\end{algorithm} 
 
 \section {Discussion}
 
@@ -71,8 +142,20 @@ Explain why encryption works
 \subsection{Decryption}
 Explain why decryption works
 
-\subsection {S-Boxes}
-Explain why S-Boxes respect the requirements ...
+\subsection{S-Boxes generation}
+
+Considering that S-boxes occupy 4096 bytes, it's essential to have a sufficiently long byte vector with data that is almost uniformly distributed to effectively populate each S-box. To generate this vector (array), the SHA-256 cryptographic hash function was employed. This approach ensures a uniform distribution of data, and because SHA-256 is a one-way function, it is practically impossible to reverse-engineer the key from these values.
+
+The reason for hashing all the values with the key is to prevent the recovery of the right side of the vector if a single hash value is discovered. This additional layer of security ensures that, without the key, generating the remaining bytes becomes infeasible.
+
+In the second step, a sorted array containing values from 0 to 4096 is subjected to a shuffling process. There are two primary reasons why the array begins in a sorted state with unique values:
+
+\begin{enumerate}
+\item To ensure determinism in the algorithm, it's crucial for the array to start in a unique configuration, guaranteeing consistent output for the same input.
+\item The final array should encompass values from 0 to 4095 without any repetitions. This initial state maintains this property, and subsequent swaps do not compromise this characteristic.
+\end{enumerate}
+
+During the shuffling process, two bytes are combined, and modulo 4096 is applied. This operation is performed because the array contains only 4096 positions. It's worth noting that this calculation doesn't impact the distribution of data due to the compatibility between the chosen byte sizes. Specifically, we have chosen 2 bytes from the array ($2^{16}$ possibilities), which is a multiple of $2^8$. A similar rationale applies when selecting 2 bytes from the 32 bytes generated by SHA-256. For further insights into this concept, you can refer to this \href{https://crypto.stackexchange.com/a/21010}{source}.
 
 \section{Statistics}
 Write about algorithm performance ... (compare with DES)
