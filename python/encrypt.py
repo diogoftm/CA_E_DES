@@ -4,6 +4,8 @@ import base64
 import hashlib
 import sys
 
+from EDES import EDES
+
 # Base64 encode
 def base64Encode(data : bytes) -> bytes:
     return base64.b64encode(data).decode('utf-8')
@@ -33,7 +35,9 @@ def des_encrypt(plaintext : bytes, key : bytes) -> bytes:
 
 # Encrypt using E-DES
 def edes_encrypt(plaintext : bytes, key : bytes) -> bytes:
-    ...
+    edes = EDES()
+    #edes.set_key(...)
+    return edes.encrypt(plaintext)
 
 # Add PKCS#7 pad
 def pkcs7_pad(data : bytes, block_size : int) -> bytes:
@@ -44,14 +48,14 @@ if __name__ == "__main__":
     standardDESFlag : bool = False
 
     # Check command line arguments
-    if len(sys.argv) < 3:
-        if len(sys.argv) == 2 and sys.argv[1]=="-h":
+    if len(sys.argv) == 2:
+        if sys.argv[1]=="-h":
             print("usage: python3 encrypt.py <password> <plaintext> [-s]")
             sys.exit(0)
-    elif len(sys.argv) > 3:
-        if sys.argv[3] == "-s":
+    else:
+        if sys.argv[2] == "-s":
             standardDESFlag = True
-        elif len(sys.argv) == 3:
+        elif len(sys.argv) == 2:
             print("Invalid flag. Use -h for help.")
             sys.exit(1)
         else:
@@ -60,7 +64,7 @@ if __name__ == "__main__":
         
 
     password : str = sys.argv[1]
-    plaintext : str = sys.argv[2]
+    plaintext : str = sys.stdin.read() # Read from stdin
 
     salt : bytes = bytes([0x01, 0x02, 0xFA, 0x00, 0x98, 0x11, 0x1D, 0xDD])
     # Derive key from password
@@ -70,8 +74,8 @@ if __name__ == "__main__":
     if standardDESFlag:
         ciphertext : bytes = des_encrypt(pkcs7_pad(plaintext.encode(), DES.block_size), key)
     else:
-        print("Not yet implemented")
-        sys.exit(1)
+        ciphertext : bytes = edes_encrypt(pkcs7_pad(plaintext.encode(), DES.block_size), key)
+
     # Base 64 encode
     ciphertext_base64 : bytes = base64Encode(ciphertext)
 
