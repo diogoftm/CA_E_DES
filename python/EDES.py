@@ -10,12 +10,13 @@ class SBOXESGenerator:
     @staticmethod
     def generate(key):
         derivedKey = SBOXESGenerator.generate_derived_key(key)
+
         sboxes = [ [0 for _ in range(0,256)] for _ in range(0, 16)]
         shuffled_arr = [i for i in range(0,4096)]
 
         for i in range(0, 4095):
-            
-            j = (int(derivedKey[2*(i+1)-1]) << 8 + int(derivedKey[2*i])) % 4096
+
+            j = ((int(derivedKey[2*(i+1)-1]) << 8) + int(derivedKey[2*i])) % 4096
 
             vj = shuffled_arr[j]
             vi = shuffled_arr[i]
@@ -41,7 +42,7 @@ class SBOXESGenerator:
     @staticmethod
     def generate_derived_key(key: bytes):
         
-        niter = 8192 / 32
+        niter = 8192 // 32
         result = b''
         for i in range(niter):
             h = SHA256.new()
