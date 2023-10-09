@@ -136,9 +136,6 @@ uint8_t *EDES::fN(uint8_t *in, uint8_t *sbox)
     for (int i = 0; i < 4; i++)
     {
         result[i + 4] = l[i] ^ rf[i];
-    }
-    for (int i = 0; i < 4; i++)
-    {
         result[i] = r[i];
     }
 
@@ -152,20 +149,20 @@ uint8_t *EDES::fNR(uint8_t *in, uint8_t *sbox)
     uint8_t l[4] = {in[0], in[1], in[2], in[3]};
     uint8_t r[4] = {in[4], in[5], in[6], in[7]};
 
-    uint8_t *rf = EDES::f(l, sbox);
+    uint8_t *lf = EDES::f(l, sbox);
 
     uint8_t *result = new uint8_t[8];
 
     for (int i = 0; i < 4; i++)
     {
-        result[i] = r[i] ^ rf[i];
+        result[i] = r[i] ^ lf[i];
     }
     for (int i = 0; i < 4; i++)
     {
         result[i + 4] = l[i];
     }
 
-    delete[] rf;
+    delete[] lf;
     return result;
 }
 
