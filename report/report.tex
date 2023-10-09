@@ -53,18 +53,91 @@
 
 \tableofcontents
 
+\clearpage
+
 \section{Introduction}
 Introduction ...
 
 \section{Implementation}
 
 \subsection{Encryption}
-Explain how encryption was implemented ...
+The encryption using E-DED processes a 64 bit block through a 16 distinct layers of Feistel Networks. 
+Each Feistel Network will mix and transform the data using a s-box generated from the key and more
+operation in order to mask the determinism of the algorithm.
+
+\subsubsection{Feistel Network}
+
+\begin{algorithm}[H]
+  \caption{Feistel Network}
+  \begin{algorithmic}[1]
+
+  \State $l[4] \gets \{in[0], in[1], in[2], in[3]\}$
+  \State $r[4] \gets \{in[4], in[5], in[6], in[7]\}$
+  \State $rf \gets$ \Call{f}{$r, sbox$}
+  \State $result[8] \gets$ \textbf{new} $uint8\_t[8]$
+  \For{$i \gets 0$ to $3$}
+    \State $result[i + 4] \gets l[i] \oplus rf[i]$
+    \State $result[i] \gets r[i]$
+  \EndFor
+  \State \Return $result$
+  \end{algorithmic}
+\end{algorithm}
+
+It starts by spliting the 64 bit block into two 32 bit blocks.
+The less significant one is processed by a \textit{f} function that uses a S-Box (see \autoref{sboxgen}) 
+generated from the key to transform deterministically each 2 bytes of the input into other 2 bytes.
+The output of the network is the less significant 32 bit block appended to the result of a xor operation between 
+the most significant block and the output of the \textit{f} function.
+
+\subsubsection{\textit{f} function}
+
+\begin{algorithm}[H]
+  \caption{\textit{f} function}
+\begin{algorithmic}[1]
+  \State $index \gets in[3]$
+  \State $out \gets$ \textbf{new} $uint8\_t[4]$
+  \State $out[0] \gets sbox[index]$
+  \State $index \gets (index + in[2]) \mod 256$
+  \State $out[1] \gets sbox[index]$
+  \State $index \gets (index + in[1]) \mod 256$
+  \State $out[2] \gets sbox[index]$
+  \State $index \gets (index + in[0]) \mod 256$
+  \State $out[3] \gets sbox[index]$
+  \State \textbf{return} $out$
+\end{algorithmic}
+\end{algorithm}
+
+A \textit{f} function is used by a Feistel Network in order to create confusion on the input block.
+This function recieves a block of 32 bits and the S-Box to used. The most significant byte of the output is 
+the result of the S-Box for the less significant byte. For the next byte (2nd most significant) in the 
+output is the result of the S-Box for an input with the sum modulo 256 of the two input bytes in the higher memory addresses.
+This process goes on for the 4 bytes. See the algorithm above for a more implementation-like algorithm representation.
 
 \subsection{Decryption}
-Explain how decryption was implemented ...
+
+\begin{algorithm}[H]
+  \caption{Decryption Feistel Network}
+  \begin{algorithmic}[1]
+      \State $l[4] \gets \{in[0], in[1], in[2], in[3]\}$
+      \State $r[4] \gets \{in[4], in[5], in[6], in[7]\}$
+      \State $rf \gets$ \Call{f}{$r, sbox$}
+      \State $result \gets$ \textbf{new} $uint8\_t[8]$
+      \For{$i \gets 0$ to $3$}
+          \State $result[i + 4] \gets l[i] \oplus rf[i]$
+          \State $result[i] \gets r[i]$
+      \EndFor
+      \State \textbf{return} $result$
+  \end{algorithmic}
+  \end{algorithm}
+
+The decryption is very simular to the encryption. The only difference is in the Feistel Networks that does
+its operations in reverse. So, It starts by spliting the 64 bit block of the ciphertext into two 32 bit blocks.
+The most significant one is processed by the \textit{f} function.
+The output of the network is the most significant 32 bit block appended to the result of a xor operation between 
+the less significant block and the output of the \textit{f} function.
 
 \subsection{S-Boxes Generation}
+\label{sboxgen}
 For the purpose of generating S-Boxes, the process is divided in three phases:
 \begin{enumerate}
   \item Generate a derived array of 8192 bytes from the a 32 byte key
@@ -94,7 +167,7 @@ The sorted array should be sorted in the following way:
 
 Then the array should be iterated from $0$ up to $4094$ and for each iteration pairs of two bytes (mod $4096$) from $D$ should be picked and swapped with current iteration position.
 
-\begin{algorithm}
+\begin{algorithm}[H]
   \caption{Array Initialization and Shuffling}
   \begin{algorithmic}[1]
   \State Initialize array $A$ with $4096$ elements
@@ -112,7 +185,7 @@ Then the array should be iterated from $0$ up to $4094$ and for each iteration p
 
 \subsubsection{Fill S-boxes bytes}
 
-\begin{algorithm}
+\begin{algorithm}[H]
   \caption{Fill S-boxes}
   \begin{algorithmic}[1]
 
@@ -164,6 +237,12 @@ In the final phase of the algorithm, S-boxes are filled according to a shuffled 
 Write about algorithm performance ... (compare with DES)
 Show some graphs about avg time, fastest time etc ...
 
+\section {Aplication}
+Just a short descretion of the implemented apps...
+\subsection{Encryption}
 
+\subsection{Decryption}
+
+\subsection{Speed}
 
 \end{document}
