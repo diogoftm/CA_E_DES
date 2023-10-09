@@ -36,7 +36,7 @@ def des_decrypt(ciphertext : bytes, key : bytes) -> bytes:
 # Decrypt using E-DES
 def edes_decrypt(plaintext : bytes, key : bytes) -> bytes:
     edes = EDES()
-    #edes.set_key(...)
+    edes.set_key(key)
     return edes.decrypt(plaintext)
 
 # Remove PKCS#7 pad

@@ -36,7 +36,7 @@ def des_encrypt(plaintext : bytes, key : bytes) -> bytes:
 # Encrypt using E-DES
 def edes_encrypt(plaintext : bytes, key : bytes) -> bytes:
     edes = EDES()
-    #edes.set_key(...)
+    edes.set_key(key)
     return edes.encrypt(plaintext)
 
 # Add PKCS#7 pad

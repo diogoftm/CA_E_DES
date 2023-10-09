@@ -40,7 +40,7 @@ int Base64Decode(char* b64message, unsigned char** buffer, size_t* length) {
 
 // Derive key and iv from password
 void deriveKey(const string& pass, unsigned char* salt, unsigned char* key, unsigned char* iv ) {
-    EVP_BytesToKey(EVP_aes_256_cbc(), EVP_sha1(), salt, (unsigned char *)pass.c_str(), pass.length(), 1, key, iv);
+    EVP_BytesToKey(EVP_aes_256_ecb(), EVP_sha1(), salt, (unsigned char *)pass.c_str(), pass.length(), 1, key, iv);
 }
 
 
