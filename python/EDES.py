@@ -10,8 +10,7 @@ class SBOXESGenerator:
     @staticmethod
     def generate(key):
         derivedKey = SBOXESGenerator.generate_derived_key(key)
-
-        sboxes = [ [0 for _ in range(0,256)] for _ in range(0, 16)]
+        sboxes = [bytearray([0 for _ in range(0,256)]) for _ in range(0, 16)]
         shuffled_arr = [i for i in range(0,4096)]
 
         for i in range(0, 4095):
