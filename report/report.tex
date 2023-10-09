@@ -61,7 +61,7 @@ Introduction ...
 \section{Implementation}
 
 \subsection{Encryption}
-The encryption using E-DED processes a 64 bit block through a 16 distinct layers of Feistel Networks. 
+The encryption using E-DES processes a 64 bit block through a 16 distinct layers of Feistel Networks. 
 Each Feistel Network will mix and transform the data using a s-box generated from the key and more
 operation in order to mask the determinism of the algorithm.
 
@@ -112,6 +112,12 @@ This function recieves a block of 32 bits and the S-Box to used. The most signif
 the result of the S-Box for the less significant byte. For the next byte (2nd most significant) in the 
 output is the result of the S-Box for an input with the sum modulo 256 of the two input bytes in the higher memory addresses.
 This process goes on for the 4 bytes. See the algorithm above for a more implementation-like algorithm representation.
+
+\subsubsection{Implmentation notes}
+The libary developed in C++ to the user (developer) is not that different from the open-ssl inplementation.
+First, create an instance of the class, then set the key and, at last, encrypt. But it has one major difference,
+the encrypt function is able to handle any data multiple of the block size (8 bytes). 
+The programs that use EDES library does't need to iterate over the blocks and encrypt one by one.
 
 \subsection{Decryption}
 
@@ -238,10 +244,27 @@ Write about algorithm performance ... (compare with DES)
 Show some graphs about avg time, fastest time etc ...
 
 \section {Aplication}
-Just a short descretion of the implemented apps...
 \subsection{Encryption}
+This applicattion performs the following steps:
+\begin{enumerate}
+  \item Read the plaintext to encrypted from the stdin and password given by the user as an argument;
+  \item Derive the 256 bit key from the password to be used for E-DES or DES:
+  \item Pad the plaintext using PKCS\#7;
+  \item Encrypt the data with padding. It uses E-DES or DES based on the usage of the '-s' flag by the user;
+  \item Encode the ciphertext to base64:
+  \item Print result in the stdout.
+\end{enumerate}
 
 \subsection{Decryption}
+This applicattion performs the following steps:
+\begin{enumerate}
+  \item Read the ciphertext to encrypted from the stdin and password given by the user as an argument;
+  \item Derive the 256 bit key from the password to be used for E-DES or DES:
+  \item Decrypt the data. It uses E-DES or DES based on the usage of the '-s' flag by the user;
+  \item Unpad the plaintext (PKCS\#7);
+  \item Decode the ciphertext from base64:
+  \item Print result in the stdout.
+\end{enumerate}
 
 \subsection{Speed}
 
