@@ -120,21 +120,19 @@ int main(int argc, char const *argv[])
     char standardDESFlag = 0;
 
     // Check command line arguments
-    if (argc < 3)
+    if (argc == 2)
     {
-        if (argc == 2 && strcmp(argv[1], "-h") == 0)
+        if (strcmp(argv[1], "-h") == 0)
         {
             std::cout << "usage: ./encrypt <password> <ciphertext> [-s]\n";
             return 0;
         }
-        std::cerr << "Invalid number of arguments. Use -h for help. \n";
-        return -1;
     }
-    else if (argc > 3)
+    else
     {
-        if (strcmp(argv[3], "-s") == 0)
+        if (strcmp(argv[2], "-s") == 0)
             standardDESFlag = 1;
-        else if (argc == 3)
+        else if (argc == 2)
         {
             std::cerr << "Invalid flag. Use -h for help. \n";
             return -1;
@@ -145,9 +143,11 @@ int main(int argc, char const *argv[])
             return -1;
         }
     }
-
-    char *ciphertextBase64 = (char *)argv[2]; // Base64-encoded ciphertext from user
-    size_t ciphertextb64Len = strlen(ciphertextBase64);
+    
+    std::string dataIn;
+    std::getline(std::cin, dataIn);
+    char* ciphertextBase64 = new char[dataIn.length() + 1]; // +1 for the null terminator
+    strcpy(ciphertextBase64, dataIn.c_str());
 
     // Derive key from password
     unsigned char salt[8] = {0x01, 0x02, 0xFA, 0x00, 0x98, 0x11, 0x1D, 0xDD};

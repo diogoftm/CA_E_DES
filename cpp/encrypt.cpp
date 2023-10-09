@@ -103,21 +103,19 @@ int main(int argc, char const *argv[])
     char standardDESFlag = 0;
 
     // Check command line arguments
-    if (argc < 3)
+    if (argc == 2)
     {
-        if (argc == 2 && strcmp(argv[1], "-h") == 0)
+        if (strcmp(argv[1], "-h") == 0)
         {
             std::cout << "usage: ./encrypt <password> <plaintext> [-s]\n";
             return 0;
         }
-        std::cerr << "Invalid number of arguments. Use -h for help. \n";
-        return -1;
     }
-    else if (argc > 3)
+    else
     {
-        if (strcmp(argv[3], "-s") == 0)
+        if (strcmp(argv[2], "-s") == 0)
             standardDESFlag = 1;
-        else if (argc == 3)
+        else if (argc == 2)
         {
             std::cerr << "Invalid flag. Use -h for help. \n";
             return -1;
@@ -129,7 +127,15 @@ int main(int argc, char const *argv[])
         }
     }
 
-    char *plaintext = (char *)argv[2]; // plaintext from user
+    
+    std::string dataIn;
+    std::string line;
+    while (std::getline(std::cin, line))
+    {
+        dataIn += line;
+    }
+    char* plaintext = new char[dataIn.length() + 1]; // +1 for the null terminator
+    strcpy(plaintext, dataIn.c_str());
     size_t plainLen = strlen(plaintext);
 
     // Derive key from password
@@ -137,11 +143,9 @@ int main(int argc, char const *argv[])
     ERR_load_crypto_strings();
     unsigned char key[32];
     unsigned char iv[32];     // not used
+
     std::string psw(argv[1]); // password from user
     deriveKey(psw, salt, key, iv);
-
-    for(int i = 0; i<32; i++) std::cout << key[i];
-    std::cout << "\n";
 
     // Padding
     uint8_t *paddedData = padPKCS7(reinterpret_cast<uint8_t *>(plaintext), plainLen, 8);

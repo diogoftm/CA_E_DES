@@ -13,27 +13,29 @@
 Compilation and example usage:
 ``` bash
 make encrypt
-./encrypt pswd123 "My plaintext"
+echo "My plaintext" | ./encrypt pswd123
 ```
 
 Optionally the '-s' can be added to the end of the command in order to use the standard DES:
 
 ``` bash
-./encrypt pswd123 "My plaintext" -s
+echo "My plaintext" | ./encrypt pswd123 "My plaintext" -s
 ```
+
+*Note*: When using running it using the input from the keyboard, you can type and change line as you like, to submit just press ctrl+d .
 
 ### Decrypt application
 
 Compilation and example usage:
 ``` bash
 make decrypt
-./decrypt pswd123 qYWaMoZeRsOQc16JRnGnJQ==
+echo "qYWaMoZeRsOQc16JRnGnJQ==" | ./decrypt pswd123
 ```
 
 Optionally the '-s' can be added to the end of the command in order to use the standard DES:
 
 ``` bash
-./decrypt pswd123 Q+1tlWJ9fS9BYH00dC2+qQ== -s
+echo "qYWaMoZeRsOQc16JRnGnJQ==" | ./decrypt pswd123 -s
 ```
 
 ### Unit tests
