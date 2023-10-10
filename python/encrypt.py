@@ -11,19 +11,18 @@ def base64Encode(data : bytes) -> bytes:
     return base64.b64encode(data).decode('utf-8')
 
 # Derive key and iv from password, matching cpp EVP_BytesToKey
-def deriveKey(passphrase : str, salt : bytes) -> bytes:
+def deriveKey(passphrase : str, salt : bytes, key_length: int) -> bytes:
     iterations : int = 1  # Equivalent to the "1" argument in EVP_BytesToKey
-    key_len : int = 8  # DES key length
 
     # Concatenate the password and salt
     data : bytes = passphrase.encode() + salt
 
     # Perform SHA-1 hashing for the given number of iterations
     for _ in range(iterations):
-        data = hashlib.sha1(data).digest()
+        data = hashlib.sha256(data).digest()
 
     # Take the first 8 bytes as the key
-    key : bytes = data[:key_len]
+    key : bytes = data[:key_length]
 
     return key
 
@@ -68,7 +67,7 @@ if __name__ == "__main__":
 
     salt : bytes = bytes([0x01, 0x02, 0xFA, 0x00, 0x98, 0x11, 0x1D, 0xDD])
     # Derive key from password
-    key = deriveKey(password, salt)
+    key = deriveKey(password, salt, 8 if standardDESFlag else 32)
 
     # Encrypt
     if standardDESFlag:

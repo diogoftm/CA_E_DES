@@ -60,7 +60,7 @@ class SBOXESGenerator:
 # E-DES implementation
 class EDES:
     def __init__(self):
-        self.set_key([0x00] * 32)
+        self.set_key(bytearray([0 for _ in range(32)]))
     
     # f function
     @staticmethod
