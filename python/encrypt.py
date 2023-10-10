@@ -42,7 +42,6 @@ def edes_encrypt(plaintext : bytes, key : bytes) -> bytes:
 def pkcs7_pad(data : bytes, block_size : int) -> bytes:
     padding : int = block_size - (len(data) % block_size)
     return data + bytes([padding] * padding)
-
 if __name__ == "__main__":
     standardDESFlag : bool = False
 
@@ -63,7 +62,9 @@ if __name__ == "__main__":
         
 
     password : str = sys.argv[1]
-    plaintext : str = sys.stdin.read() # Read from stdin
+    plaintext : str = input()
+
+
 
     salt : bytes = bytes([0x01, 0x02, 0xFA, 0x00, 0x98, 0x11, 0x1D, 0xDD])
     # Derive key from password
