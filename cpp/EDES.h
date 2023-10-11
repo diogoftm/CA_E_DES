@@ -27,9 +27,6 @@ public:
 
 
 private:
-    uint8_t *f(uint8_t *in, uint8_t *sbox);
-    uint8_t *fN(uint8_t *in, uint8_t *sbox);
-    uint8_t *fNR(uint8_t *in, uint8_t *sbox);
     uint8_t *processBlock(uint8_t *in, uint8_t reverseFlag);
     void processBlockBatch(uint8_t *in, uint8_t reverseFlag, uint32_t numBlocks, uint8_t *out);
     void setupSboxes();

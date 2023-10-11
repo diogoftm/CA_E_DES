@@ -148,7 +148,7 @@ void EDES::processBlockBatch(uint8_t *in, uint8_t reverseFlag, uint32_t numBlock
     uint8_t *blockOut;
     uint8_t *result;
 
-    for (uint32_t i = 0; i < numBlocks; i+=2) {
+    for (uint32_t i = 0; i < numBlocks; i++) {
         blockIn = in + i * 8;
         blockOut = out + i * 8;
         result = processBlock(blockIn, reverseFlag);
