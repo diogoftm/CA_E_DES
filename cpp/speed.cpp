@@ -119,6 +119,6 @@ int main(int argc, char *argv[])
     fprintf(stdout, " DES fastest encryption time: %lldns\n", DES_Stats.lowest_time_ns);
     fprintf(stdout, "EDES fastest encryption time: %lldns\n", EDES_Stats.lowest_time_ns);
 
-    long long des_slowness = EDES_Stats.lowest_time_ns / DES_Stats.lowest_time_ns;
-    fprintf(stdout, "EDES was %lld times slower than DES\n", des_slowness);
+    double des_slowness = (double)EDES_Stats.lowest_time_ns / DES_Stats.lowest_time_ns;
+    fprintf(stdout, "EDES was %f times slower than DES\n", des_slowness);
 }

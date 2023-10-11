@@ -3,6 +3,7 @@
 #include <openssl/sha.h>
 #include <iostream>
 #include <stdexcept>
+#include <algorithm>
 
 void SBOXESGenerator::generate(uint8_t key[32], SBOXES &sboxes)
 {
@@ -141,15 +142,19 @@ uint8_t *EDES::processBlock(uint8_t *in, uint8_t reverseFlag)
     return result;
 }
 
-void EDES::processBlockBatch(uint8_t *in, uint8_t reverseFlag, uint32_t numBlocks, uint8_t *out) {
+void EDES::processBlockBatch(const uint8_t *in, uint8_t reverseFlag, uint32_t numBlocks, uint8_t *out) {
     uint8_t *blockOut;
     //uint8_t *result;
 
     uint8_t *result;
     uint8_t *sbox;
 
+    uint8_t* in_copy = new uint8_t[numBlocks * 8];
+    
+    std::copy(in, in + numBlocks * 8, in_copy);
+
     for (uint32_t i = 0; i < numBlocks; i++) {
-        result = in + i * 8;
+        result = in_copy + i * 8;
         blockOut = out + i * 8;
         for (int i = 0; i < 16; i++)
         {
@@ -183,6 +188,8 @@ void EDES::processBlockBatch(uint8_t *in, uint8_t reverseFlag, uint32_t numBlock
             blockOut[j] = result[j];
         }
     }
+
+    delete[] in_copy;
 }
 
 // public methods
@@ -197,6 +204,7 @@ uint8_t *EDES::encrypt(uint8_t *in, uint32_t inSize)
 {   
     assert((inSize % 8 == 0));
     uint8_t *result = new uint8_t[inSize];
+
     processBlockBatch(in, 0, inSize / 8, result);
     return result;
 }
