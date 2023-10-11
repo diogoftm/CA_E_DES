@@ -114,13 +114,12 @@ uint8_t *EDES::processBlock(uint8_t *in, uint8_t reverseFlag)
     for (int i = 0; i < 16; i++)
     {
         if (reverseFlag == 0){
-            uint8_t l[4] = {result[0], result[1], result[2], result[3]};
             uint8_t r[4] = {result[4], result[5], result[6], result[7]};
             sbox = sboxes[i];
-            result[4] = l[0] ^ sbox[r[3]];
-            result[5] = l[1] ^ sbox[(r[3] + r[2]) % 256];
-            result[6] = l[2] ^ sbox[(((r[3] + r[2]) % 256) + r[1]) % 256];
-            result[7] = l[3] ^ sbox[(((((r[3] + r[2]) % 256) + r[1]) % 256) + r[0]) % 256];
+            result[4] = result[0] ^ sbox[r[3]];
+            result[5] = result[1] ^ sbox[(r[3] + r[2]) % 256];
+            result[6] = result[2] ^ sbox[(((r[3] + r[2]) % 256) + r[1]) % 256];
+            result[7] = result[3] ^ sbox[(((((r[3] + r[2]) % 256) + r[1]) % 256) + r[0]) % 256];
             result[0] = r[0];
             result[1] = r[1];
             result[2] = r[2];
@@ -128,12 +127,11 @@ uint8_t *EDES::processBlock(uint8_t *in, uint8_t reverseFlag)
         }
         else{
             uint8_t l[4] = {result[0], result[1], result[2], result[3]};
-            uint8_t r[4] = {result[4], result[5], result[6], result[7]};
             sbox = sboxes[15-i];
-            result[0] = r[0] ^ sbox[l[3]];
-            result[1] = r[1] ^ sbox[(l[3] + l[2]) % 256];
-            result[2] = r[2] ^ sbox[(((l[3] + l[2]) % 256) + l[1]) % 256];
-            result[3] = r[3] ^ sbox[(((((l[3] + l[2]) % 256) + l[1]) % 256) + l[0]) % 256];
+            result[0] = result[4] ^ sbox[l[3]];
+            result[1] = result[5] ^ sbox[(l[3] + l[2]) % 256];
+            result[2] = result[6] ^ sbox[(((l[3] + l[2]) % 256) + l[1]) % 256];
+            result[3] = result[7] ^ sbox[(((((l[3] + l[2]) % 256) + l[1]) % 256) + l[0]) % 256];
             result[4] = l[0];
             result[5] = l[1];
             result[6] = l[2];
@@ -144,14 +142,42 @@ uint8_t *EDES::processBlock(uint8_t *in, uint8_t reverseFlag)
 }
 
 void EDES::processBlockBatch(uint8_t *in, uint8_t reverseFlag, uint32_t numBlocks, uint8_t *out) {
-    uint8_t *blockIn;
     uint8_t *blockOut;
+    //uint8_t *result;
+
     uint8_t *result;
+    uint8_t *sbox;
 
     for (uint32_t i = 0; i < numBlocks; i++) {
-        blockIn = in + i * 8;
+        result = in + i * 8;
         blockOut = out + i * 8;
-        result = processBlock(blockIn, reverseFlag);
+        for (int i = 0; i < 16; i++)
+        {
+            if (reverseFlag == 0){
+                uint8_t r[4] = {result[4], result[5], result[6], result[7]};
+                sbox = sboxes[i];
+                result[4] = result[0] ^ sbox[r[3]];
+                result[5] = result[1] ^ sbox[(r[3] + r[2]) % 256];
+                result[6] = result[2] ^ sbox[(((r[3] + r[2]) % 256) + r[1]) % 256];
+                result[7] = result[3] ^ sbox[(((((r[3] + r[2]) % 256) + r[1]) % 256) + r[0]) % 256];
+                result[0] = r[0];
+                result[1] = r[1];
+                result[2] = r[2];
+                result[3] = r[3];
+            }
+            else{
+                uint8_t l[4] = {result[0], result[1], result[2], result[3]};
+                sbox = sboxes[15-i];
+                result[0] = result[4] ^ sbox[l[3]];
+                result[1] = result[5] ^ sbox[(l[3] + l[2]) % 256];
+                result[2] = result[6] ^ sbox[(((l[3] + l[2]) % 256) + l[1]) % 256];
+                result[3] = result[7] ^ sbox[(((((l[3] + l[2]) % 256) + l[1]) % 256) + l[0]) % 256];
+                result[4] = l[0];
+                result[5] = l[1];
+                result[6] = l[2];
+                result[7] = l[3];
+            }
+        }
 
         for (int j = 0; j < 8; j++) {
             blockOut[j] = result[j];
