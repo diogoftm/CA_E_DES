@@ -1,0 +1,40 @@
+name: C++ Test Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the code
+      uses: actions/checkout@v2
+
+    - name: Set up OpenSSL libraries
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libssl-dev  # Install OpenSSL development package
+      if: startsWith(matrix.config.runner, 'ubuntu-')
+
+
+    - name: Set up GTest
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgtest-dev
+        sudo ln -s /usr/src/gtest /usr/include/gtest
+        sudo ln -s /usr/src/gtest /usr/include/gtest
+        cd /usr/src/gtest
+        sudo cmake CMakeLists.txt
+        sudo make
+        sudo cp *.a /usr/lib
+      if: startsWith(matrix.config.runner, 'ubuntu-')
+
+
+    - name: Build and run C++ test
+      working-directory: cpp
+      run: |
+        make  # Replace with your build command (e.g., make, cmake, etc.)
+        ./test_edes  # Replace with the command to run your C++ test
