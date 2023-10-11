@@ -136,7 +136,7 @@ The programs that use EDES library does't need to iterate over the blocks and en
   \end{algorithmic}
   \end{algorithm}
 
-The decryption is very simular to the encryption. The only difference is in the Feistel Networks that does
+The decryption is very simular to the encryption. Ther are only two differences. The S-Boxs are used in reverse order. In the Feistel Networks that does
 its operations in reverse. So, It starts by spliting the 64 bit block of the ciphertext into two 32 bit blocks.
 The most significant one is processed by the \textit{f} function.
 The output of the network is the most significant 32 bit block appended to the result of a xor operation between 
@@ -213,6 +213,26 @@ Then the array should be iterated from $0$ up to $4094$ and for each iteration p
   \end{algorithmic}
 \end{algorithm} 
 
+\subsubsection{Speed improvement methodologies used}
+
+After implementing the E-DES libraries (C++ and Python), we made some test using the Speed program (\href{speed}) in order to compare the performance of our implementation
+of E-DES compared to the implementation of DES by famous libraries. E-DES should be a faster algorithm because of its architecture. But, as is well know, the code metters
+when it comes to time performance. So, based on the first implementation, we deployed some thecniques to refactor the code to be faster.
+
+For the C++ implementation, the first test have shown that our E-DES was ten times slower tha open ssl's DES. The Python implementation was...
+
+Apart from basic good pratices, we used the following thecniques:
+\begin{enumerate}
+  \item Code profiling - the usage of a profiler, we used gprof for c++ and..., can pinpoint the critical places of the code. By giving metrics such as the number of 
+  times a method was called and the time it spend executing it, it is possible to know where to optimize.
+  \item Loop unrolling - by removing loops or by reducing the number of iterations can lead to performance improvements. In some cases it was possible to remove the 'for'
+  statements because it the number of iteration was hardcoded, by doing that at least the program doesn't need to perform jump instructions to perform the cycle.
+  \item Code batching - method calls are expensive, batching the code into less methods it can lead to performance improvements. This thecniques usually causes the code 
+  to be less readable. Batching together the f function and the Feistel Network into the block processing method had a great positive impact.
+  \item Hoisting - by removing some part of the code from inside of a loop to outside can lead to performance improvements, particularly when there's variables being
+  declared inside the loop
+\end{enumerate}
+
 \section {Discussion}
 
 \subsection{Encryption}
@@ -267,5 +287,6 @@ This applicattion performs the following steps:
 \end{enumerate}
 
 \subsection{Speed}
+\label{speed}
 
 \end{document}

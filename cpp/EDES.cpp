@@ -4,9 +4,6 @@
 #include <iostream>
 #include <stdexcept>
 
-// TO DO:
-// - add assertions
-
 void SBOXESGenerator::generate(uint8_t key[32], SBOXES &sboxes)
 {
     uint8_t derivedKey[8192];
@@ -94,6 +91,7 @@ void SBOXESGenerator::generate_derived_key(uint8_t key[32], uint8_t derived[8192
     }
 }
 
+
 EDES::EDES()
 {
     uint8_t default_key[32];
@@ -104,79 +102,61 @@ EDES::EDES()
     set_key(default_key);
 }
 
-void EDES::setupSboxes()
+inline void EDES::setupSboxes()
 {
     SBOXESGenerator::generate(this->key, this->sboxes);
-}
-/*
- */
-uint8_t *EDES::f(uint8_t *in, uint8_t *sbox)
-{
-    uint32_t index = in[3];
-    uint8_t *out = new uint8_t[4];
-    out[0] = sbox[index];
-    index = (index + in[2]) % 256;
-    out[1] = sbox[index];
-    index = (index + in[1]) % 256;
-    out[2] = sbox[index];
-    index = (index + in[0]) % 256;
-    out[3] = sbox[index];
-    return out;
-}
-
-uint8_t *EDES::fN(uint8_t *in, uint8_t *sbox)
-{
-    uint8_t l[4] = {in[0], in[1], in[2], in[3]};
-    uint8_t r[4] = {in[4], in[5], in[6], in[7]};
-
-    uint8_t *rf = EDES::f(r, sbox);
-
-    uint8_t *result = new uint8_t[8];
-
-    for (int i = 0; i < 4; i++)
-    {
-        result[i + 4] = l[i] ^ rf[i];
-        result[i] = r[i];
-    }
-
-    delete[] rf;
-    return result;
-}
-
-// for decryption
-uint8_t *EDES::fNR(uint8_t *in, uint8_t *sbox)
-{
-    uint8_t l[4] = {in[0], in[1], in[2], in[3]};
-    uint8_t r[4] = {in[4], in[5], in[6], in[7]};
-
-    uint8_t *lf = EDES::f(l, sbox);
-
-    uint8_t *result = new uint8_t[8];
-
-    for (int i = 0; i < 4; i++)
-    {
-        result[i] = r[i] ^ lf[i];
-    }
-    for (int i = 0; i < 4; i++)
-    {
-        result[i + 4] = l[i];
-    }
-
-    delete[] lf;
-    return result;
 }
 
 uint8_t *EDES::processBlock(uint8_t *in, uint8_t reverseFlag)
 {
     uint8_t *result = in;
+    uint8_t *sbox;
     for (int i = 0; i < 16; i++)
     {
-        if (reverseFlag == 0)
-            result = fN(result, sboxes[i]);
-        else
-            result = fNR(result, sboxes[15 - i]);
+        if (reverseFlag == 0){
+            uint8_t l[4] = {result[0], result[1], result[2], result[3]};
+            uint8_t r[4] = {result[4], result[5], result[6], result[7]};
+            sbox = sboxes[i];
+            result[4] = l[0] ^ sbox[r[3]];
+            result[5] = l[1] ^ sbox[(r[3] + r[2]) % 256];
+            result[6] = l[2] ^ sbox[(((r[3] + r[2]) % 256) + r[1]) % 256];
+            result[7] = l[3] ^ sbox[(((((r[3] + r[2]) % 256) + r[1]) % 256) + r[0]) % 256];
+            result[0] = r[0];
+            result[1] = r[1];
+            result[2] = r[2];
+            result[3] = r[3];
+        }
+        else{
+            uint8_t l[4] = {result[0], result[1], result[2], result[3]};
+            uint8_t r[4] = {result[4], result[5], result[6], result[7]};
+            sbox = sboxes[15-i];
+            result[0] = r[0] ^ sbox[l[3]];
+            result[1] = r[1] ^ sbox[(l[3] + l[2]) % 256];
+            result[2] = r[2] ^ sbox[(((l[3] + l[2]) % 256) + l[1]) % 256];
+            result[3] = r[3] ^ sbox[(((((l[3] + l[2]) % 256) + l[1]) % 256) + l[0]) % 256];
+            result[4] = l[0];
+            result[5] = l[1];
+            result[6] = l[2];
+            result[7] = l[3];
+        }
     }
     return result;
+}
+
+void EDES::processBlockBatch(uint8_t *in, uint8_t reverseFlag, uint32_t numBlocks, uint8_t *out) {
+    uint8_t *blockIn;
+    uint8_t *blockOut;
+    uint8_t *result;
+
+    for (uint32_t i = 0; i < numBlocks; i+=2) {
+        blockIn = in + i * 8;
+        blockOut = out + i * 8;
+        result = processBlock(blockIn, reverseFlag);
+
+        for (int j = 0; j < 8; j++) {
+            blockOut[j] = result[j];
+        }
+    }
 }
 
 // public methods
@@ -188,16 +168,10 @@ void EDES::set_key(const uint8_t key[32])
 }
 
 uint8_t *EDES::encrypt(uint8_t *in, uint32_t inSize)
-{
+{   
     assert((inSize % 8 == 0));
     uint8_t *result = new uint8_t[inSize];
-    for (uint32_t i = 0; i < inSize; i += 8)
-    {
-        uint8_t block[] = {in[i], in[i + 1], in[i + 2], in[i + 3], in[i + 4], in[i + 5], in[i + 6], in[i + 7]};
-        uint8_t *r = processBlock(block, 0);
-        std::copy(r, r + 8, result + i);
-        delete[] r;
-    }
+    processBlockBatch(in, 0, inSize / 8, result);
     return result;
 }
 
@@ -205,12 +179,6 @@ uint8_t *EDES::decrypt(uint8_t *in, uint32_t inSize)
 {
     assert((inSize % 8 == 0));
     uint8_t *result = new uint8_t[inSize];
-    for (uint32_t i = 0; i < inSize; i += 8)
-    {
-        uint8_t block[] = {in[i], in[i + 1], in[i + 2], in[i + 3], in[i + 4], in[i + 5], in[i + 6], in[i + 7]};
-        uint8_t *r = processBlock(block, 1);
-        std::copy(r, r + 8, result + i);
-        delete[] r;
-    }
+    processBlockBatch(in, 1, inSize / 8, result);
     return result;
 }
