@@ -24,8 +24,12 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y libgtest-dev
-        sudo ln -s /usr/lib/googletest /usr/include/googletest
-        sudo ln -s /usr/lib/googletest /usr/include/gtest
+        sudo ln -s /usr/src/gtest /usr/include/gtest
+        sudo ln -s /usr/src/gtest /usr/include/gtest
+        cd /usr/src/gtest
+        sudo cmake CMakeLists.txt
+        sudo make
+        sudo cp *.a /usr/lib
       if: startsWith(matrix.config.runner, 'ubuntu-')
 
 
