@@ -4,6 +4,9 @@
 #include <iostream>
 #include <stdexcept>
 #include <algorithm>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <cstring>
 
 void SBOXESGenerator::generate(uint8_t key[32], SBOXES &sboxes)
 {
@@ -108,43 +111,8 @@ inline void EDES::setupSboxes()
     SBOXESGenerator::generate(this->key, this->sboxes);
 }
 
-uint8_t *EDES::processBlock(uint8_t *in, uint8_t reverseFlag)
-{
-    uint8_t *result = in;
-    uint8_t *sbox;
-    for (int i = 0; i < 16; i++)
-    {
-        if (reverseFlag == 0){
-            uint8_t r[4] = {result[4], result[5], result[6], result[7]};
-            sbox = sboxes[i];
-            result[4] = result[0] ^ sbox[r[3]];
-            result[5] = result[1] ^ sbox[(r[3] + r[2]) % 256];
-            result[6] = result[2] ^ sbox[(((r[3] + r[2]) % 256) + r[1]) % 256];
-            result[7] = result[3] ^ sbox[(((((r[3] + r[2]) % 256) + r[1]) % 256) + r[0]) % 256];
-            result[0] = r[0];
-            result[1] = r[1];
-            result[2] = r[2];
-            result[3] = r[3];
-        }
-        else{
-            uint8_t l[4] = {result[0], result[1], result[2], result[3]};
-            sbox = sboxes[15-i];
-            result[0] = result[4] ^ sbox[l[3]];
-            result[1] = result[5] ^ sbox[(l[3] + l[2]) % 256];
-            result[2] = result[6] ^ sbox[(((l[3] + l[2]) % 256) + l[1]) % 256];
-            result[3] = result[7] ^ sbox[(((((l[3] + l[2]) % 256) + l[1]) % 256) + l[0]) % 256];
-            result[4] = l[0];
-            result[5] = l[1];
-            result[6] = l[2];
-            result[7] = l[3];
-        }
-    }
-    return result;
-}
-
 void EDES::processBlockBatch(const uint8_t *in, uint8_t reverseFlag, uint32_t numBlocks, uint8_t *out) {
     uint8_t *blockOut;
-    //uint8_t *result;
 
     uint8_t *result;
     uint8_t *sbox;
@@ -152,7 +120,7 @@ void EDES::processBlockBatch(const uint8_t *in, uint8_t reverseFlag, uint32_t nu
     uint8_t* in_copy = new uint8_t[numBlocks * 8];
     
     std::copy(in, in + numBlocks * 8, in_copy);
-
+    
     for (uint32_t i = 0; i < numBlocks; i++) {
         result = in_copy + i * 8;
         blockOut = out + i * 8;
@@ -165,10 +133,7 @@ void EDES::processBlockBatch(const uint8_t *in, uint8_t reverseFlag, uint32_t nu
                 result[5] = result[1] ^ sbox[(r[3] + r[2]) % 256];
                 result[6] = result[2] ^ sbox[(((r[3] + r[2]) % 256) + r[1]) % 256];
                 result[7] = result[3] ^ sbox[(((((r[3] + r[2]) % 256) + r[1]) % 256) + r[0]) % 256];
-                result[0] = r[0];
-                result[1] = r[1];
-                result[2] = r[2];
-                result[3] = r[3];
+                std::memcpy(result, r, 4);
             }
             else{
                 uint8_t l[4] = {result[0], result[1], result[2], result[3]};
@@ -177,16 +142,11 @@ void EDES::processBlockBatch(const uint8_t *in, uint8_t reverseFlag, uint32_t nu
                 result[1] = result[5] ^ sbox[(l[3] + l[2]) % 256];
                 result[2] = result[6] ^ sbox[(((l[3] + l[2]) % 256) + l[1]) % 256];
                 result[3] = result[7] ^ sbox[(((((l[3] + l[2]) % 256) + l[1]) % 256) + l[0]) % 256];
-                result[4] = l[0];
-                result[5] = l[1];
-                result[6] = l[2];
-                result[7] = l[3];
+                std::memcpy(result + 4, l, 4);
             }
         }
 
-        for (int j = 0; j < 8; j++) {
-            blockOut[j] = result[j];
-        }
+        std::memcpy(blockOut, result, 8);
     }
 
     delete[] in_copy;

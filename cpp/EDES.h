@@ -27,7 +27,6 @@ public:
 
 
 private:
-    uint8_t *processBlock(uint8_t *in, uint8_t reverseFlag);
     void processBlockBatch(const uint8_t *in, uint8_t reverseFlag, uint32_t numBlocks, uint8_t *out);
     void setupSboxes();
 
