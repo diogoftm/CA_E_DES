@@ -5,6 +5,7 @@
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 #include <openssl/des.h>
+
 #include <string.h>
 #include "opensslSetup.h"
 #include <iostream>
@@ -45,9 +46,9 @@ void deriveKey(const string& pass, unsigned char* salt, unsigned char* key, unsi
 
 
 // Remove PKCS#7 padding
-uint8_t* removePKCS7Padding(const uint8_t* data, size_t dataSize) {
+std::pair<uint8_t*, unsigned int> removePKCS7Padding(const uint8_t* data, size_t dataSize) {
     if (dataSize == 0) {
-        return nullptr;
+        return std::make_pair<uint8_t*, unsigned int>(nullptr, 0);
     }
 
     uint8_t paddingValue = data[dataSize - 1];
@@ -69,18 +70,19 @@ uint8_t* removePKCS7Padding(const uint8_t* data, size_t dataSize) {
             // Calculate the size of the data without padding
             size_t unpaddedSize = dataSize - paddingValue;
 
+
             // Create a new buffer for the unpadded data
             uint8_t *unpaddedData = new uint8_t[unpaddedSize];
 
             // Copy the unpadded portion of the data
             memcpy(unpaddedData, data, unpaddedSize);
 
-            return unpaddedData;
+            return std::make_pair<uint8_t*, unsigned int>((uint8_t*)unpaddedData, (unsigned int)unpaddedSize);
         }
     }
 
     // Padding is not valid, return nullptr
-    return nullptr;
+    std::make_pair<uint8_t*, unsigned int>(nullptr, 0);
 }
 
 // Decrypt using E-DES
@@ -169,19 +171,21 @@ int main(int argc, char const *argv[])
     else
         decryptedData = decrypt(key, ciphertext, decodedSize);
 
-    for (int i = 0; i < decodedSize; i++)
-        std::cout << decryptedData[i];
+
 
     // Remove PKCS#7 padding from the decrypted data
-    uint8_t *plaintext = removePKCS7Padding(decryptedData, decodedSize);
-    // for(size_t i = 0; i<decodedSize-decryptedData[decodedSize-1]; i++) std::cout << plaintext[i];
+    std::pair<uint8_t*, unsigned int> unpadded = removePKCS7Padding(decryptedData, decodedSize);
+
+    for(int i=0;i<unpadded.second;i++)
+        std::cout << unpadded.first[i];
 
     std::cout << std::endl;
 
     // Clean up
     delete[] ciphertext;
     delete[] decryptedData;
-    delete[] plaintext;
+    if(unpadded.first)
+        delete[] unpadded.first;
     EVP_cleanup();
     ERR_free_strings();
 
