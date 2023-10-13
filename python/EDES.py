@@ -1,10 +1,5 @@
 from Crypto.Hash import SHA256
 
-
-# To do:
-# - adicionar geração das sboxs
-# - verificar tipagem pois creio que não esteja 100% correta
-
 # Class to handle the creation of the sboxs for E-DES
 class SBOXESGenerator:
     @staticmethod
@@ -121,12 +116,10 @@ class EDES:
                 result = EDES.__fNR(result, self.sboxes[15 - i])
         return result
 
+
     ####################
     #  Public methods  #
     ####################
-
-    # Set 256 bit key
-    # To do:
 
     def set_key(self, key: bytes):
         assert len(key) == 32, "Invalid key size. Condition: len(key) == 32 bytes"

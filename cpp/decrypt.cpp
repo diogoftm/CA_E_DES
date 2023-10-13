@@ -41,7 +41,7 @@ int Base64Decode(char *b64message, unsigned char **buffer, size_t *length)
     return (0); // success
 }
 
-// Derive key and iv from password
+// Derive key and iv from password (iv not used)
 void deriveKey(const string &pass, unsigned char *salt, unsigned char *key, unsigned char *iv)
 {
     EVP_BytesToKey(EVP_aes_256_ecb(), EVP_sha256(), salt, (unsigned char *)pass.c_str(), pass.length(), 1, key, iv);
@@ -71,36 +71,28 @@ std::pair<uint8_t *, unsigned int> removePKCS7Padding(const uint8_t *data, size_
 
         if (validPadding)
         {
-            // Calculate the size of the data without padding
             size_t unpaddedSize = dataSize - paddingValue;
-
-            // Create a new buffer for the unpadded data
             uint8_t *unpaddedData = new uint8_t[unpaddedSize];
-
-            // Copy the unpadded portion of the data
             memcpy(unpaddedData, data, unpaddedSize);
-
             return std::make_pair<uint8_t *, unsigned int>((uint8_t *)unpaddedData, (unsigned int)unpaddedSize);
         }
     }
 
-    // Padding is not valid, return nullptr
     return std::make_pair<uint8_t *, unsigned int>(nullptr, 0);
 }
 
 // Decrypt using E-DES
 uint8_t *decrypt(uint8_t *key, uint8_t *ciphertext, uint32_t length)
 {
-    // Init EDES
     EDES edes = EDES();
 
-    // Encrypt
     edes.set_key(key);
     uint8_t *plaintext = edes.decrypt(ciphertext, length);
 
     return plaintext;
 }
 
+// Decrypt using DES
 uint8_t *decryptDES(uint8_t *key, uint8_t *ciphertext, uint32_t length)
 {
     // Sticking with the low-level DES API due to prior issues with EVP decryption

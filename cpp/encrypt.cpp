@@ -34,7 +34,7 @@ std::string base64Encode(const uint8_t *data, size_t length)
     return encodedData;
 }
 
-// Derive key and iv from password
+// Derive key from password (iv not used)
 void deriveKey(const string &pass, unsigned char *salt, unsigned char *key, unsigned char *iv)
 {
     EVP_BytesToKey(EVP_aes_256_ecb(), EVP_sha256(), salt, (unsigned char *)pass.c_str(), pass.length(), 1, key, iv);
@@ -43,16 +43,15 @@ void deriveKey(const string &pass, unsigned char *salt, unsigned char *key, unsi
 // Encrypt using E-DES
 uint8_t *encrypt(uint8_t *key, uint8_t *plaintext, uint32_t length)
 {
-    // Init EDES
     EDES edes = EDES();
 
-    // Encrypt
     edes.set_key(key);
     uint8_t *ciphertext = edes.encrypt(plaintext, length);
 
     return ciphertext;
 }
 
+// Encrypt using DES
 uint8_t *encryptDES(uint8_t *key, uint8_t *ciphertext, uint32_t length)
 {
     uint8_t *out = new uint8_t[length];
@@ -74,20 +73,16 @@ uint8_t *encryptDES(uint8_t *key, uint8_t *ciphertext, uint32_t length)
 // Add PKCS#7 padding
 uint8_t *padPKCS7(uint8_t *in, size_t dataSize, size_t blockSize)
 {
-    // Calculate the number of padding bytes needed
     size_t paddingSize = blockSize - (dataSize % blockSize);
 
-    // Create a new buffer for the padded data
     size_t paddedSize = dataSize + paddingSize;
     uint8_t *paddedData = new uint8_t[paddedSize];
 
-    // Copy the original data into the new buffer
     for (size_t i = 0; i < dataSize; i++)
     {
         paddedData[i] = in[i];
     }
 
-    // Add padding bytes with the value equal to the number of padding bytes
     for (size_t i = dataSize; i < paddedSize; i++)
     {
         paddedData[i] = static_cast<uint8_t>(paddingSize);
