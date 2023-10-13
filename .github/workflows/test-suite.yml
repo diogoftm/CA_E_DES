@@ -26,7 +26,7 @@ jobs:
         sudo apt-get install -y libgtest-dev
 
 
-    - name: Build and run C++ test
+    - name: Build and run C++ tests
       working-directory: cpp
       run: |
         make
@@ -37,16 +37,16 @@ jobs:
       with:
         python-version: '3.10.13'
 
-    - name: Install dependencies
+    - name: Install Python dependencies
       run: |
         pip install -r requirements.txt
       working-directory: python
 
-    - name: Run tests
+    - name: Run python tests
       run: python3 test_edes.py
       working-directory: python
 
-    - name: Run Shell Script
+    - name: Check Python and C++ EDES implementation compatibility
       run: |
         chmod +x test_compare_python_cpp.sh
         sh test_compare_python_cpp.sh
