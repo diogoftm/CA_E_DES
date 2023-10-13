@@ -7,6 +7,18 @@
 - speed.cpp - application to evaluate the relative performance of E-DES and DES (openssl).
 - test_edes.cpp - E-DES unit tests using Google Test.
 
+
+## Requirements
+[OpenSSL](https://www.openssl.org/) is necessary for calling DES and SHA256.
+[googletest](https://github.com/google/googletest) is required for compiling tests.
+
+In Debian-based distributions, the following commands are sufficient to install the dependencies:
+```
+apt-get install libssl-dev
+apt-get install libgtest-dev
+```
+
+
 ## Compile and execute
 ### Encrypt application
 
