@@ -2,6 +2,7 @@ import unittest
 from Crypto.Hash import SHA256
 from EDES import EDES
 
+
 class TestEDES(unittest.TestCase):
     def setUp(self):
 
@@ -19,6 +20,7 @@ class TestEDES(unittest.TestCase):
         ciphertext = self.edes.encrypt(plaintext)
         decrypted_text = self.edes.decrypt(ciphertext)
         self.assertEqual(plaintext, decrypted_text)
+
 
 if __name__ == '__main__':
     unittest.main()

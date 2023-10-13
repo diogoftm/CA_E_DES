@@ -9,13 +9,12 @@ key = bytearray([random.randint(0, 255) for _ in range(32)])
 plaintext = bytearray([random.randint(0, 255) for _ in range(4096)])
 tries = 1000
 
+
 @dataclass
 class Statistics:
     lowest_time_ns: int
     avg_time_ns: int
     highest_time_ns: int
-        
-
 
 
 def test_DES() -> Statistics:
@@ -24,7 +23,6 @@ def test_DES() -> Statistics:
     highest_time = -1
 
     cipher = DES.new(key[:8], DES.MODE_ECB)
-
 
     for _ in tqdm(range(tries), desc="Testing DES"):
         t1 = time.monotonic_ns()
@@ -41,6 +39,7 @@ def test_DES() -> Statistics:
     avg_time_ns //= tries
 
     return Statistics(fastest_time, avg_time_ns, highest_time)
+
 
 def test_EDES() -> Statistics:
     fastest_time = -1
@@ -62,7 +61,7 @@ def test_EDES() -> Statistics:
         avg_time += t2 - t1
 
     avg_time //= tries
-        
+
     return Statistics(fastest_time, avg_time, highest_time)
 
 
@@ -84,8 +83,9 @@ def printStatisticsComparison(stats1, stats2):
 def main():
     s_des = test_DES()
     s_edes = test_EDES()
-    
-    printStatisticsComparison(s_des,s_edes)
+
+    printStatisticsComparison(s_des, s_edes)
+
 
 if __name__ == '__main__':
     main()

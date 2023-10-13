@@ -3,18 +3,19 @@
 #include <cstring>
 #include <libgen.h>
 
-#define MIN(A,B) A < B ? A : B
+#define MIN(A, B) A < B ? A : B
 
 int opensslSetup(const char *configFilePath = "openssl.conf")
 {
     char pBuf[256];
     size_t len = sizeof(pBuf);
-    int bytes = MIN(readlink("/proc/self/exe", pBuf, len), len - 1);
-    if (bytes >= 0) {
+    int bytes = MIN(readlink("/proc/self/exe", pBuf, len), (ssize_t)(len - 1));
+    if (bytes >= 0)
+    {
         pBuf[bytes] = '\0';
     }
 
-    char* dirName = dirname(pBuf);
+    char *dirName = dirname(pBuf);
 
     size_t dirLen = strlen(dirName);
     size_t pathLen = dirLen + 1 + strlen(configFilePath);

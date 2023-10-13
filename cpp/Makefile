@@ -1,6 +1,6 @@
 # Compiler and compiler flags
 CC = g++
-CFLAGS = -Wall -g -w
+CFLAGS = -Wall -g -Wno-deprecated-declarations
 
 TARGETS = encrypt decrypt test speed test_edes
 

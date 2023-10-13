@@ -95,7 +95,6 @@ void SBOXESGenerator::generate_derived_key(uint8_t key[32], uint8_t derived[8192
     }
 }
 
-
 EDES::EDES()
 {
     uint8_t default_key[32];
@@ -111,22 +110,25 @@ inline void EDES::setupSboxes()
     SBOXESGenerator::generate(this->key, this->sboxes);
 }
 
-void EDES::processBlockBatch(const uint8_t *in, uint8_t reverseFlag, uint32_t numBlocks, uint8_t *out) {
+void EDES::processBlockBatch(const uint8_t *in, uint8_t reverseFlag, uint32_t numBlocks, uint8_t *out)
+{
     uint8_t *blockOut;
 
     uint8_t *result;
     uint8_t *sbox;
 
-    uint8_t* in_copy = new uint8_t[numBlocks * 8];
-    
+    uint8_t *in_copy = new uint8_t[numBlocks * 8];
+
     std::copy(in, in + numBlocks * 8, in_copy);
-    
-    for (uint32_t i = 0; i < numBlocks; i++) {
+
+    for (uint32_t i = 0; i < numBlocks; i++)
+    {
         result = in_copy + i * 8;
         blockOut = out + i * 8;
         for (int i = 0; i < 16; i++)
         {
-            if (reverseFlag == 0){
+            if (reverseFlag == 0)
+            {
                 uint8_t r[4] = {result[4], result[5], result[6], result[7]};
                 sbox = sboxes[i];
                 result[4] = result[0] ^ sbox[r[3]];
@@ -135,9 +137,10 @@ void EDES::processBlockBatch(const uint8_t *in, uint8_t reverseFlag, uint32_t nu
                 result[7] = result[3] ^ sbox[(((((r[3] + r[2]) % 256) + r[1]) % 256) + r[0]) % 256];
                 std::memcpy(result, r, 4);
             }
-            else{
+            else
+            {
                 uint8_t l[4] = {result[0], result[1], result[2], result[3]};
-                sbox = sboxes[15-i];
+                sbox = sboxes[15 - i];
                 result[0] = result[4] ^ sbox[l[3]];
                 result[1] = result[5] ^ sbox[(l[3] + l[2]) % 256];
                 result[2] = result[6] ^ sbox[(((l[3] + l[2]) % 256) + l[1]) % 256];
@@ -161,7 +164,7 @@ void EDES::set_key(const uint8_t key[32])
 }
 
 uint8_t *EDES::encrypt(uint8_t *in, uint32_t inSize)
-{   
+{
     assert((inSize % 8 == 0));
     uint8_t *result = new uint8_t[inSize];
 

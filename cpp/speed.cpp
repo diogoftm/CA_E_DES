@@ -41,7 +41,6 @@ Statistics test_DES()
     static uint8_t data[TEST_DATA_SIZE];
     static DES_cblock key;
     static uint8_t out[TEST_DATA_SIZE];
-    static DES_key_schedule keysched;
 
     statistics.average_time_ns = 0;
 
@@ -72,7 +71,7 @@ Statistics test_DES()
         if (statistics.lowest_time_ns == UNSET_NS || elapsed_ns < statistics.lowest_time_ns)
             statistics.lowest_time_ns = elapsed_ns;
 
-        if(statistics.highest_time_ns == UNSET_NS || elapsed_ns > statistics.highest_time_ns)
+        if (statistics.highest_time_ns == UNSET_NS || elapsed_ns > statistics.highest_time_ns)
             statistics.highest_time_ns = elapsed_ns;
 
         statistics.average_time_ns += elapsed_ns;
@@ -101,7 +100,7 @@ Statistics test_EDES()
 
         EDES edes = EDES();
         uint8_t key[32] = {0x2b, 0x8f, 0x1b, 0x4c, 0x71, 0x51, 0xa3, 0x9d, 0x88, 0xf2, 0x7b, 0x5a, 0x16, 0xc5, 0xe9, 0x3d,
-                   0x01, 0x51, 0x93, 0x6f, 0x33, 0xda, 0x77, 0xb5, 0x68, 0x11, 0xf7, 0xa8, 0xd6, 0x45, 0x22, 0x04};
+                           0x01, 0x51, 0x93, 0x6f, 0x33, 0xda, 0x77, 0xb5, 0x68, 0x11, 0xf7, 0xa8, 0xd6, 0x45, 0x22, 0x04};
         edes.set_key(key);
         clock_gettime(CLOCK_MONOTONIC, &beforeEncT);
 
@@ -114,7 +113,7 @@ Statistics test_EDES()
         if (statistics.lowest_time_ns == UNSET_NS || elapsed_ns < statistics.lowest_time_ns)
             statistics.lowest_time_ns = elapsed_ns;
 
-        if(statistics.highest_time_ns == UNSET_NS || elapsed_ns > statistics.highest_time_ns)
+        if (statistics.highest_time_ns == UNSET_NS || elapsed_ns > statistics.highest_time_ns)
             statistics.highest_time_ns = elapsed_ns;
 
         statistics.average_time_ns += elapsed_ns;
@@ -125,10 +124,8 @@ Statistics test_EDES()
     return statistics;
 }
 
-void printStatisticsComparison(const Statistics& stats1, const Statistics& stats2) {
-
-
-
+void printStatisticsComparison(const Statistics &stats1, const Statistics &stats2)
+{
 
     printf("Statistics Comparison between DES and EDES [%d test cases]:\n", TRIES);
     printf("DES - Lowest Time: %lld ns\n", stats1.lowest_time_ns);
@@ -154,6 +151,4 @@ int main(int argc, char *argv[])
     Statistics EDES_Stats = test_EDES();
 
     printStatisticsComparison(DES_Stats, EDES_Stats);
-    
-
 }

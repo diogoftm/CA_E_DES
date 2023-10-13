@@ -8,7 +8,7 @@
     }
 
 uint8_t rkey[32] = {0x2b, 0x8f, 0x1b, 0x4c, 0x71, 0x51, 0xa3, 0x9d, 0x88, 0xf2, 0x7b, 0x5a, 0x16, 0xc5, 0xe9, 0x3d,
-                   0x01, 0x51, 0x93, 0x6f, 0x33, 0xda, 0x77, 0xb5, 0x68, 0x11, 0xf7, 0xa8, 0xd6, 0x45, 0x22, 0x04};
+                    0x01, 0x51, 0x93, 0x6f, 0x33, 0xda, 0x77, 0xb5, 0x68, 0x11, 0xf7, 0xa8, 0xd6, 0x45, 0x22, 0x04};
 
 class EDESTest : public ::testing::Test
 {
@@ -77,7 +77,8 @@ TEST_F(EDESTest, EncryptionAndDecryption)
     delete[] decrypted;
 }
 
-double getKeyBitFlipSboxPercentage(uint8_t* k1, uint8_t* k2) {
+double getKeyBitFlipSboxPercentage(uint8_t *k1, uint8_t *k2)
+{
     SBOXES orig, modified;
 
     SBOXESGenerator::generate(k1, orig);
@@ -85,16 +86,18 @@ double getKeyBitFlipSboxPercentage(uint8_t* k1, uint8_t* k2) {
 
     int bitsFlipped = 0;
 
-    for(unsigned int i=0;i<4096;i++) {
+    for (unsigned int i = 0; i < 4096; i++)
+    {
         uint8_t b1, b2;
         b1 = orig[i / 256][i % 256];
         b2 = modified[i / 256][i % 256];
 
-        for(int j=0;j<8;j++) {
+        for (int j = 0; j < 8; j++)
+        {
             uint8_t bit1 = (b1 >> j) & 0x01;
             uint8_t bit2 = (b2 >> j) & 0x01;
 
-            if(bit1 != bit2)
+            if (bit1 != bit2)
                 bitsFlipped++;
         }
     }
@@ -102,16 +105,16 @@ double getKeyBitFlipSboxPercentage(uint8_t* k1, uint8_t* k2) {
     return 100.0 * (double)bitsFlipped / (4096 * 8.0);
 }
 
-void flip_key_1_bit_randomly(uint8_t* key, int keysize) {
+void flip_key_1_bit_randomly(uint8_t *key, int keysize)
+{
     int rpos = rand() % keysize;
     int ipos = rand() % 8;
 
     key[rpos] ^= (0x1 << ipos);
 }
 
-
 /*
-    Make sure bit flips in the key don't produce 
+    Make sure bit flips in the key don't produce
 */
 TEST(SboxGenerator, SBOXEntropy)
 {
@@ -126,9 +129,10 @@ TEST(SboxGenerator, SBOXEntropy)
 
     double totalPercentage = 0.0;
 
-    for(unsigned int i=0;i< 2500; i++) {
+    for (unsigned int i = 0; i < 2500; i++)
+    {
         flip_key_1_bit_randomly(k2, 32);
-        double cpercentage = getKeyBitFlipSboxPercentage(k1,k2);
+        double cpercentage = getKeyBitFlipSboxPercentage(k1, k2);
         totalPercentage += cpercentage;
         // total SBOXES contains 32768 bits, so a difference greater than 1.5% is a bad sign
         ASSERT_NEAR(cpercentage, 50, 1.5);
