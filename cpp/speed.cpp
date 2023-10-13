@@ -23,6 +23,8 @@
 struct Statistics
 {
     long long lowest_time_ns = UNSET_NS;
+    long long highest_time_ns = UNSET_NS;
+    long long average_time_ns = 0;
 };
 
 void fill_byte_arr_randomly(uint8_t arr[], unsigned int arr_length)
@@ -40,6 +42,8 @@ Statistics test_DES()
     static DES_cblock key;
     static uint8_t out[TEST_DATA_SIZE];
     static DES_key_schedule keysched;
+
+    statistics.average_time_ns = 0;
 
     timespec beforeEncT, afterEncT;
 
@@ -67,7 +71,14 @@ Statistics test_DES()
 
         if (statistics.lowest_time_ns == UNSET_NS || elapsed_ns < statistics.lowest_time_ns)
             statistics.lowest_time_ns = elapsed_ns;
+
+        if(statistics.highest_time_ns == UNSET_NS || elapsed_ns > statistics.highest_time_ns)
+            statistics.highest_time_ns = elapsed_ns;
+
+        statistics.average_time_ns += elapsed_ns;
     }
+
+    statistics.average_time_ns /= TRIES;
 
     return statistics;
 }
@@ -102,9 +113,36 @@ Statistics test_EDES()
 
         if (statistics.lowest_time_ns == UNSET_NS || elapsed_ns < statistics.lowest_time_ns)
             statistics.lowest_time_ns = elapsed_ns;
+
+        if(statistics.highest_time_ns == UNSET_NS || elapsed_ns > statistics.highest_time_ns)
+            statistics.highest_time_ns = elapsed_ns;
+
+        statistics.average_time_ns += elapsed_ns;
     }
 
+    statistics.average_time_ns /= TRIES;
+
     return statistics;
+}
+
+void printStatisticsComparison(const Statistics& stats1, const Statistics& stats2) {
+
+
+
+
+    printf("Statistics Comparison between DES and EDES [%d test cases]:\n", TRIES);
+    printf("DES - Lowest Time: %lld ns\n", stats1.lowest_time_ns);
+    printf("EDES - Lowest Time: %lld ns\n", stats2.lowest_time_ns);
+
+    printf("\n");
+
+    printf("DES - Highest Time: %lld ns\n", stats1.highest_time_ns);
+    printf("EDES - Highest Time: %lld ns\n", stats2.highest_time_ns);
+
+    printf("\n");
+
+    printf("DES - Average Time: %lld ns\n", stats1.average_time_ns);
+    printf("EDES - Average Time: %lld ns\n", stats2.average_time_ns);
 }
 
 int main(int argc, char *argv[])
@@ -113,12 +151,9 @@ int main(int argc, char *argv[])
     opensslSetup();
 
     Statistics DES_Stats = test_DES();
-
     Statistics EDES_Stats = test_EDES();
 
-    fprintf(stdout, " DES fastest encryption time: %lldns\n", DES_Stats.lowest_time_ns);
-    fprintf(stdout, "EDES fastest encryption time: %lldns\n", EDES_Stats.lowest_time_ns);
+    printStatisticsComparison(DES_Stats, EDES_Stats);
+    
 
-    double des_slowness = (double)EDES_Stats.lowest_time_ns / DES_Stats.lowest_time_ns;
-    fprintf(stdout, "EDES was %f times slower than DES\n", des_slowness);
 }
