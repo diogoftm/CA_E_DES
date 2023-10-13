@@ -5,9 +5,12 @@
 #include <stdexcept>
 #include <algorithm>
 #include <unistd.h>
-#include <sys/wait.h>
 #include <cstring>
+#include <thread>
 
+/*
+ * Generate all 16 S-Boxes to be used in E-DES based on a given key.
+ */
 void SBOXESGenerator::generate(uint8_t key[32], SBOXES &sboxes)
 {
     uint8_t derivedKey[8192];
@@ -48,6 +51,9 @@ void SBOXESGenerator::generate(uint8_t key[32], SBOXES &sboxes)
     }
 }
 
+/*
+ * Derive 8192 byte value from 32 byte key.
+ */
 void SBOXESGenerator::generate_derived_key(uint8_t key[32], uint8_t derived[8192])
 {
     for (uint32_t i = 0; i < 8192; i++)
@@ -95,6 +101,9 @@ void SBOXESGenerator::generate_derived_key(uint8_t key[32], uint8_t derived[8192
     }
 }
 
+/*
+ * EDES class.
+ */
 EDES::EDES()
 {
     uint8_t default_key[32];
@@ -105,73 +114,110 @@ EDES::EDES()
     set_key(default_key);
 }
 
+/*
+ * Compute and save the S-Boxes.
+ */
 inline void EDES::setupSboxes()
 {
     SBOXESGenerator::generate(this->key, this->sboxes);
 }
 
+/*
+ * Process a given number of blocks.
+ * All the encrypt and decrypt logic is in this method
+ * including the Feistel Network and the f function.
+ */
 void EDES::processBlockBatch(const uint8_t *in, uint8_t reverseFlag, uint32_t numBlocks, uint8_t *out)
 {
-    uint8_t *blockOut;
+    const uint8_t *blockIn;
 
     uint8_t *result;
     uint8_t *sbox;
 
-    uint8_t *in_copy = new uint8_t[numBlocks * 8];
-
-    std::copy(in, in + numBlocks * 8, in_copy);
-
     for (uint32_t i = 0; i < numBlocks; i++)
     {
-        result = in_copy + i * 8;
-        blockOut = out + i * 8;
+        result = out + i * 8;
+        blockIn = in + i * 8;
         for (int i = 0; i < 16; i++)
         {
             if (reverseFlag == 0)
             {
-                uint8_t r[4] = {result[4], result[5], result[6], result[7]};
-                sbox = sboxes[i];
-                result[4] = result[0] ^ sbox[r[3]];
-                result[5] = result[1] ^ sbox[(r[3] + r[2]) % 256];
-                result[6] = result[2] ^ sbox[(((r[3] + r[2]) % 256) + r[1]) % 256];
-                result[7] = result[3] ^ sbox[(((((r[3] + r[2]) % 256) + r[1]) % 256) + r[0]) % 256];
-                std::memcpy(result, r, 4);
+                if (i == 0)
+                {
+                    uint8_t r[4] = {blockIn[4], blockIn[5], blockIn[6], blockIn[7]};
+                    sbox = sboxes[i];
+                    result[4] = blockIn[0] ^ sbox[r[3]];
+                    result[5] = blockIn[1] ^ sbox[(r[3] + r[2]) % 256];
+                    result[6] = blockIn[2] ^ sbox[(((r[3] + r[2]) % 256) + r[1]) % 256];
+                    result[7] = blockIn[3] ^ sbox[(((((r[3] + r[2]) % 256) + r[1]) % 256) + r[0]) % 256];
+                    std::memcpy(result, r, 4);
+                }
+                else
+                {
+                    uint8_t r[4] = {result[4], result[5], result[6], result[7]};
+                    sbox = sboxes[i];
+                    result[4] = result[0] ^ sbox[r[3]];
+                    result[5] = result[1] ^ sbox[(r[3] + r[2]) % 256];
+                    result[6] = result[2] ^ sbox[(((r[3] + r[2]) % 256) + r[1]) % 256];
+                    result[7] = result[3] ^ sbox[(((((r[3] + r[2]) % 256) + r[1]) % 256) + r[0]) % 256];
+                    std::memcpy(result, r, 4);
+                }
             }
             else
             {
-                uint8_t l[4] = {result[0], result[1], result[2], result[3]};
-                sbox = sboxes[15 - i];
-                result[0] = result[4] ^ sbox[l[3]];
-                result[1] = result[5] ^ sbox[(l[3] + l[2]) % 256];
-                result[2] = result[6] ^ sbox[(((l[3] + l[2]) % 256) + l[1]) % 256];
-                result[3] = result[7] ^ sbox[(((((l[3] + l[2]) % 256) + l[1]) % 256) + l[0]) % 256];
-                std::memcpy(result + 4, l, 4);
+                if (i == 0)
+                {
+                    uint8_t l[4] = {blockIn[0], blockIn[1], blockIn[2], blockIn[3]};
+                    sbox = sboxes[15 - i];
+                    result[0] = blockIn[4] ^ sbox[l[3]];
+                    result[1] = blockIn[5] ^ sbox[(l[3] + l[2]) % 256];
+                    result[2] = blockIn[6] ^ sbox[(((l[3] + l[2]) % 256) + l[1]) % 256];
+                    result[3] = blockIn[7] ^ sbox[(((((l[3] + l[2]) % 256) + l[1]) % 256) + l[0]) % 256];
+                    std::memcpy(result + 4, l, 4);
+                }
+                else
+                {
+                    uint8_t l[4] = {result[0], result[1], result[2], result[3]};
+                    sbox = sboxes[15 - i];
+                    result[0] = result[4] ^ sbox[l[3]];
+                    result[1] = result[5] ^ sbox[(l[3] + l[2]) % 256];
+                    result[2] = result[6] ^ sbox[(((l[3] + l[2]) % 256) + l[1]) % 256];
+                    result[3] = result[7] ^ sbox[(((((l[3] + l[2]) % 256) + l[1]) % 256) + l[0]) % 256];
+                    std::memcpy(result + 4, l, 4);
+                }
             }
         }
-
-        std::memcpy(blockOut, result, 8);
     }
-
-    delete[] in_copy;
 }
 
-// public methods
+// Public methods
 
+/*
+ * Set the to be used.
+ */
 void EDES::set_key(const uint8_t key[32])
 {
     std::copy(key, key + 32, this->key);
     setupSboxes();
 }
 
+/*
+ * Encrypt a given number of blocks.
+ */
 uint8_t *EDES::encrypt(uint8_t *in, uint32_t inSize)
 {
     assert((inSize % 8 == 0));
+
     uint8_t *result = new uint8_t[inSize];
 
     processBlockBatch(in, 0, inSize / 8, result);
+
     return result;
 }
 
+/*
+ * Decrypt a given number of blocks.
+ */
 uint8_t *EDES::decrypt(uint8_t *in, uint32_t inSize)
 {
     assert((inSize % 8 == 0));

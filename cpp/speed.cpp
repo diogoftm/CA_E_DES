@@ -128,17 +128,17 @@ void printStatisticsComparison(const Statistics &stats1, const Statistics &stats
 {
 
     printf("Statistics Comparison between DES and EDES [%d test cases]:\n", TRIES);
-    printf("DES - Lowest Time: %lld ns\n", stats1.lowest_time_ns);
+    printf("DES  - Lowest Time: %lld ns\n", stats1.lowest_time_ns);
     printf("EDES - Lowest Time: %lld ns\n", stats2.lowest_time_ns);
 
     printf("\n");
 
-    printf("DES - Highest Time: %lld ns\n", stats1.highest_time_ns);
+    printf("DES  - Highest Time: %lld ns\n", stats1.highest_time_ns);
     printf("EDES - Highest Time: %lld ns\n", stats2.highest_time_ns);
 
     printf("\n");
 
-    printf("DES - Average Time: %lld ns\n", stats1.average_time_ns);
+    printf("DES  - Average Time: %lld ns\n", stats1.average_time_ns);
     printf("EDES - Average Time: %lld ns\n", stats2.average_time_ns);
 }
 
