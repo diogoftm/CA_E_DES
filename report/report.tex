@@ -9,6 +9,7 @@
 \usepackage{amsmath} % Add this line to use \text
 \usepackage{tabularx}
 \usepackage{algorithm}
+\usepackage{tcolorbox}
 \usepackage[noend]{algpseudocode}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
@@ -39,7 +40,7 @@
     \Huge \bfseries Criptografia aplicada \\[10pt]
     \Large EDES
 }
-\author{Tiago Silvestre, 103554 \\ Diogo Matos, ......}
+\author{Tiago Silvestre, 103554 \\ Diogo Matos, 102848}
 \date{\today}
 
 
@@ -56,14 +57,31 @@
 \clearpage
 
 \section{Introduction}
-Introduction ...
+Data Encryption Standard (DES) was developed in the early 70's and was considered secure and became quite popular. It a 56 bit key and block sizes of 64 bits performing 
+16 round of Feistel Networks and permutations in the beginning and at the end. The secrecy behind the S-Boxes used inside the Feistel Networks led to concerns of possible
+hiden trapdoors and, most importantly, the key size has been too small for more than two decades. Its lack of security can be solved by the means of cipher modes. Another
+aspect that is not desirable is how slow the DES is compared to its competition.
+
+In this project we introduce a new cipher called Enhanced Data Encryption Standard (E-DES) that mainly aims to twist DES in order to be more secure and faster. 
+E-DES uses a 256 bit key, maintains the block size, removes both permutation boxes and the creation of the S-Boxs depends only on the key. In this report we go into 
+further detail about the main aspects of E-DES, we give a brief overview of our implementation and discuss the results.
 
 \section{Implementation}
+\begin{tcolorbox}
+  [width=\linewidth, colback=white!95!black, boxrule=0pt]
+  C++    - /cpp/EDES.cpp
+
+  Python - /python/EDES.py
+\end{tcolorbox}
+
 
 \subsection{Encryption}
-The encryption using E-DES processes a 64 bit block through a 16 distinct layers of Feistel Networks. 
+The encryption using E-DES processes a 64 bit block through 16 distinct layers of Feistel Networks. 
 Each Feistel Network will mix and transform the data using a s-box generated from the key and more
-operation in order to mask the determinism of the algorithm.
+operation in order to mask the determinism of the algorithm. 
+
+The main operations are done in a Feistel Network and \textit{f} function. For reasons that are discussed in \autoref{speedinp} these elements are all merged
+but the logic was retained.
 
 \subsubsection{Feistel Network}
 
@@ -94,6 +112,7 @@ the most significant block and the output of the \textit{f} function.
 \begin{algorithm}[H]
   \caption{\textit{f} function}
 \begin{algorithmic}[1]
+  \State Initialize array $in$ with 4 bytes (half block)
   \State $index \gets in[3]$
   \State $out \gets$ \textbf{new} $uint8\_t[4]$
   \State $out[0] \gets sbox[index]$
@@ -117,13 +136,14 @@ This process goes on for the 4 bytes. See the algorithm above for a more impleme
 The libary developed in C++ to the user (developer) is not that different from the open-ssl inplementation.
 First, create an instance of the class, then set the key and, at last, encrypt. But it has one major difference,
 the encrypt function is able to handle any data multiple of the block size (8 bytes). 
-The programs that use EDES library does't need to iterate over the blocks and encrypt one by one.
+The programs that use EDES library doesn't need to iterate over the blocks and encrypt one by one.
 
 \subsection{Decryption}
 
 \begin{algorithm}[H]
   \caption{Decryption Feistel Network}
   \begin{algorithmic}[1]
+      \State Initialize array $in$ with 8 bytes (a block)
       \State $l[4] \gets \{in[0], in[1], in[2], in[3]\}$
       \State $r[4] \gets \{in[4], in[5], in[6], in[7]\}$
       \State $rf \gets$ \Call{f}{$r, sbox$}
@@ -136,7 +156,7 @@ The programs that use EDES library does't need to iterate over the blocks and en
   \end{algorithmic}
   \end{algorithm}
 
-The decryption is very simular to the encryption. Ther are only two differences. The S-Boxs are used in reverse order. In the Feistel Networks that does
+The decryption is very similar to the encryption. Ther are only two differences. The S-Boxs are used in reverse order. In the Feistel Networks that does
 its operations in reverse. So, It starts by spliting the 64 bit block of the ciphertext into two 32 bit blocks.
 The most significant one is processed by the \textit{f} function.
 The output of the network is the most significant 32 bit block appended to the result of a xor operation between 
@@ -213,26 +233,6 @@ Then the array should be iterated from $0$ up to $4094$ and for each iteration p
   \end{algorithmic}
 \end{algorithm} 
 
-\subsubsection{Speed improvement methodologies used}
-
-After implementing the E-DES libraries (C++ and Python), we made some test using the Speed program (\href{speed}) in order to compare the performance of our implementation
-of E-DES compared to the implementation of DES by famous libraries. E-DES should be a faster algorithm because of its architecture. But, as is well know, the code metters
-when it comes to time performance. So, based on the first implementation, we deployed some thecniques to refactor the code to be faster.
-
-For the C++ implementation, the first test have shown that our E-DES was ten times slower tha open ssl's DES. The Python implementation was...
-
-Apart from basic good pratices, we used the following thecniques:
-\begin{enumerate}
-  \item Code profiling - the usage of a profiler, we used gprof for c++ and..., can pinpoint the critical places of the code. By giving metrics such as the number of 
-  times a method was called and the time it spend executing it, it is possible to know where to optimize.
-  \item Loop unrolling - by removing loops or by reducing the number of iterations can lead to performance improvements. In some cases it was possible to remove the 'for'
-  statements because it the number of iteration was hardcoded, by doing that at least the program doesn't need to perform jump instructions to perform the cycle.
-  \item Code batching - method calls are expensive, batching the code into less methods it can lead to performance improvements. This thecniques usually causes the code 
-  to be less readable. Batching together the f function and the Feistel Network into the block processing method had a great positive impact.
-  \item Hoisting - by removing some part of the code from inside of a loop to outside can lead to performance improvements, particularly when there's variables being
-  declared inside the loop
-\end{enumerate}
-
 \section {Discussion}
 
 \subsection{Encryption}
@@ -259,9 +259,52 @@ During the shuffling process, two bytes are combined, and modulo 4096 is applied
 The final shuffled array can be considered unbiased in accordance with the \href{https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle}{Fisher-Yates shuffle} which guarantees in this case that 4095 pseudorandom swaps produce an unbiased permutation. 
 
 In the final phase of the algorithm, S-boxes are filled according to a shuffled array. This guarantees that every value ranging from 0 to 255 is uniformly distributed throughout the S-boxes. It iterates 4096 times, and every 16 iterations, the value is incremented, meaning that there are 256 different values occurring 16 times each.
-\section{Statistics}
-Write about algorithm performance ... (compare with DES)
-Show some graphs about avg time, fastest time etc ...
+
+
+\subsection{Security}
+There is no straightforward method to evaluate a cryptographic algoritm such as a cipher. But there are some metrics that are usually indicative of its quality, 
+we explore some of them here.
+
+\paragraph{Bits of security}
+The number of n bits of security is good interesting measure since an attacker would need to perform 2^n operations to crack the cipher. In the case in hand, an operation
+is a decryption using an arbitrary key. This measure shows how good is the cipher agains a brute force attack.
+Nowadays any value from 128 forward is considered secure. E-DES has 256-bits of security, DES has only 56.
+
+\paragraph{Number of diffusion bits }
+Difusion is a desirable property in a cipher because one small change in the plaintext will lead to a big change in the ciphertext. 
+The way to measure diffusion is done changing just one bit in the plaintext and compare to the ciphertext generated for the original plaintext. By counting the average number
+of changed bits, we're able to have a metric for diffusion. 
+
+Idealy the number of diffusion bits should be block\_size/2. For a 64 bit block cipher (such as E-DES), a 32 is the number to expect. A script has developed in order
+to test this that can be found in /cpp/test.cpp. The results show that the number of diffusion bits for E-DES is 32.
+
+\paragraph{Linearity}
+
+
+\subsubsection{Speed}
+\label{speedinp}
+\paragraph{Speed improvement methodologies used}
+
+After implementing the E-DES libraries (C++ and Python), we made some test using the Speed program (\href{speed}) in order to compare the performance of our implementation
+of E-DES compared to the implementation of DES by famous libraries. E-DES should be a faster algorithm because of its architecture. But, as is well know, the code metters
+when it comes to time performance. So, based on the first implementation, we deployed some thecniques to refactor the code to be faster.
+
+For the C++ implementation, the first test have shown that our E-DES was ten times slower tha open ssl's DES. The Python implementation was...
+
+Apart from basic good pratices, we used the following thecniques:
+\begin{enumerate}
+  \item Code profiling - the usage of a profiler, we used gprof for c++ and..., can pinpoint the critical places of the code. By giving metrics such as the number of 
+  times a method was called and the time it spend executing it, it is possible to know where to optimize.
+  \item Loop unrolling - by removing loops or by reducing the number of iterations can lead to performance improvements. In some cases it was possible to remove the 'for'
+  statements because it the number of iteration was hardcoded, by doing that at least the program doesn't need to perform jump instructions to perform the cycle.
+  \item Code batching - method calls are expensive, batching the code into less methods it can lead to performance improvements. This thecniques usually causes the code 
+  to be less readable. Batching together the f function and the Feistel Network into the block processing method had a great positive impact.
+  \item Hoisting - by removing some part of the code from inside of a loop to outside can lead to performance improvements, particularly when there's variables being
+  declared inside the loop
+\end{enumerate}
+
+\paragraph{Speed comparison}
+
 
 \section {Aplication}
 \subsection{Encryption}
