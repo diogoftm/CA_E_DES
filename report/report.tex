@@ -264,6 +264,14 @@ The number of n bits of security is good interesting measure since an attacker w
 is a decryption using an arbitrary key. This measure shows how good is the cipher agains a brute force attack.
 Nowadays any value from 128 forward is considered secure. E-DES has 256-bits of security, DES has only 56.
 
+\paragraph{Number of confusion bits}
+Confusion is one of the two most important characteristics of a cipher. It defines the relation between the key and the produced ciphertext, the outout bits should be 
+highly dependent on the key. One easy way to measure confusion, despite it doesn't prove cipher security alone, is to calculate on average how many bits change in the 
+ciphertext when changing just one bit of the key. We call this the number of confusion bits.
+
+Idealy the number of confusion bits should be block\_size/2. For a 64 bit block cipher (such as E-DES), a 32 is the number to expect. A script has developed in order
+to test this that can be found in /cpp/test.cpp. The results show that the number of confusion bits for E-DES is 32.
+
 \paragraph{Number of diffusion bits }
 Difusion is a desirable property in a cipher because one small change in the plaintext will lead to a big change in the ciphertext. 
 The way to measure diffusion is done changing just one bit in the plaintext and compare to the ciphertext generated for the original plaintext. By counting the average number
@@ -271,8 +279,6 @@ of changed bits, we're able to have a metric for diffusion.
 
 Idealy the number of diffusion bits should be block\_size/2. For a 64 bit block cipher (such as E-DES), a 32 is the number to expect. A script has developed in order
 to test this that can be found in /cpp/test.cpp. The results show that the number of diffusion bits for E-DES is 32.
-
-\paragraph{Linearity}
 
 
 \subsubsection{Speed}
@@ -282,8 +288,6 @@ to test this that can be found in /cpp/test.cpp. The results show that the numbe
 After implementing the E-DES libraries (C++ and Python), we made some test using the Speed program (\href{speed}) in order to compare the performance of our implementation
 of E-DES compared to the implementation of DES by famous libraries. E-DES should be a faster algorithm because of its architecture. But, as is well know, the code metters
 when it comes to time performance. So, based on the first implementation, we deployed some thecniques to refactor the code to be faster.
-
-For the C++ implementation, the first test have shown that our E-DES was ten times slower tha open ssl's DES. The Python implementation was...
 
 Apart from basic good pratices, we used the following thecniques:
 \begin{enumerate}
@@ -297,33 +301,11 @@ Apart from basic good pratices, we used the following thecniques:
   declared inside the loop
 \end{enumerate}
 
+For the C++ implementation we applied the thecniques above in order to improve the speed of encryption and decryption. The Python implementation was developed only to prove that
+the algorithm can be implemented in any language. In a production scenario, the Python's E-DES library would only be a interface to the C++ implementation and that's  why the comparison
+between our implementation of E-DES and DES from libraries commonly used it's not appropriate.
+
 \paragraph{Speed comparison}
 
-
-\section {Aplication}
-\subsection{Encryption}
-This applicattion performs the following steps:
-\begin{enumerate}
-  \item Read the plaintext to encrypted from the stdin and password given by the user as an argument;
-  \item Derive the 256 bit key from the password to be used for E-DES or DES:
-  \item Pad the plaintext using PKCS\#7;
-  \item Encrypt the data with padding. It uses E-DES or DES based on the usage of the '-s' flag by the user;
-  \item Encode the ciphertext to base64:
-  \item Print result in the stdout.
-\end{enumerate}
-
-\subsection{Decryption}
-This applicattion performs the following steps:
-\begin{enumerate}
-  \item Read the ciphertext to encrypted from the stdin and password given by the user as an argument;
-  \item Derive the 256 bit key from the password to be used for E-DES or DES:
-  \item Decrypt the data. It uses E-DES or DES based on the usage of the '-s' flag by the user;
-  \item Unpad the plaintext (PKCS\#7);
-  \item Decode the ciphertext from base64:
-  \item Print result in the stdout.
-\end{enumerate}
-
-\subsection{Speed}
-\label{speed}
 
 \end{document}
