@@ -132,12 +132,6 @@ the result of the S-Box for the less significant byte. For the next byte (2nd mo
 output is the result of the S-Box for an input with the sum modulo 256 of the two input bytes in the higher memory addresses.
 This process goes on for the 4 bytes. See the algorithm above for a more implementation-like algorithm representation.
 
-\subsubsection{Implmentation notes}
-The libary developed in C++ to the user (developer) is not that different from the open-ssl inplementation.
-First, create an instance of the class, then set the key and, at last, encrypt. But it has one major difference,
-the encrypt function is able to handle any data multiple of the block size (8 bytes). 
-The programs that use EDES library doesn't need to iterate over the blocks and encrypt one by one.
-
 \subsection{Decryption}
 
 \begin{algorithm}[H]
