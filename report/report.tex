@@ -57,13 +57,13 @@
 \clearpage
 
 \section{Introduction}
-Data Encryption Standard (DES) was developed in the early 70's and was considered secure and became quite popular. It a 56 bit key and block sizes of 64 bits performing 
-16 round of Feistel Networks and permutations in the beginning and at the end. The secrecy behind the S-Boxes used inside the Feistel Networks led to concerns of possible
+Data Encryption Standard (DES) was developed in the early 70's and was considered secure and became quite popular. It uses a 56 bit key and block sizes of 64 bits performing 
+16 round of Feistel Networks and permutations in the beginning and at the end. The secrecy behind the values used in used in the S-Boxes led to concerns of possible
 hiden trapdoors and, most importantly, the key size has been too small for more than two decades. Its lack of security can be solved by the means of cipher modes. Another
 aspect that is not desirable is how slow the DES is compared to its competition.
 
 In this project we introduce a new cipher called Enhanced Data Encryption Standard (E-DES) that mainly aims to twist DES in order to be more secure and faster. 
-E-DES uses a 256 bit key, maintains the block size, removes both permutation boxes and the creation of the S-Boxes depends only on the key. In this report we go into 
+E-DES uses a 256 bit key, maintains the block size, removes both permutation boxes, it does not use sub-keys either, and the creation of the S-Boxes depends only on the key. In this report we go into 
 further detail about the main aspects of E-DES, we give a brief overview of our implementation and discuss the results.
 
 \section{Implementation}
@@ -262,15 +262,15 @@ highly dependent on the key. Confusion is inducted by the S-Boxes, the discussio
 In order to measure confusion, despite it doesn't prove cipher security alone, is to calculate, on average, how many bits change in the 
 ciphertext when changing just one bit of the key. We call this the number of confusion bits.
 
-Idealy the number of confusion bits should be block\_size/2. For a 64 bit block cipher (such as E-DES), 32 is the number to ideally expect. A script has developed in order
+Idealy the number of confusion bits should be block\_size/2. For a 64 bit block cipher (such as E-DES), 32 is the number to ideally expect. A script was developed in order
 to test this that can be found in /cpp/test.cpp. The results show that the number of confusion bits for E-DES is 32.
 
-\paragraph{Number of diffusion bits }
+\paragraph{Number of diffusion bits}
 Difusion is a desirable property in a cipher because one small change in the plaintext will lead to a big change in the ciphertext. 
 The way to measure diffusion is done changing just one bit in the plaintext and compare to the ciphertext generated for the original plaintext. By counting the average number
 of changed bits, we're able to have a metric for diffusion. 
 
-Idealy the number of diffusion bits should be block\_size/2. For a 64 bit block cipher (such as E-DES), 32 is the number to ideally expect. A script has developed in order
+Idealy the number of diffusion bits should be block\_size/2. For a 64 bit block cipher (such as E-DES), 32 is the number to ideally expect. A script was developed in order
 to test this that can be found in /cpp/test.cpp. The results show that the number of diffusion bits for E-DES is 32.
 
 
@@ -281,13 +281,13 @@ to test this that can be found in /cpp/test.cpp. The results show that the numbe
 Apart from basic good pratices, we used the following thecniques:
 \begin{enumerate}
   \item Code profiling - the usage of a profiler, we used gprof for c++, can pinpoint the critical places of the code. By giving metrics such as the number of 
-  times a method was called and the time it spend executing it, it is possible to know where to optimize.
+  times a method was called and the time it spend executing it, it is possible to know where to optimize;
   \item Loop unrolling - by removing loops or by reducing the number of iterations can lead to performance improvements. In some cases it was possible to remove the 'for'
-  statements because it the number of iteration was hardcoded, by doing that at least the program doesn't need to perform jump instructions to perform the cycle.
+  statements because it the number of iteration was hardcoded, by doing that at least the program doesn't need to perform jump instructions to perform the cycle;
   \item Code batching - method calls are expensive, batching the code into less methods it can lead to performance improvements. This thecniques usually causes the code 
-  to be less readable. Batching together the f function and the Feistel Network into the block processing method had a great positive impact.
+  to be less readable. Batching together the f function and the Feistel Network into a block processing method had a great positive impact;
   \item Hoisting - by removing some part of the code from inside of a loop to outside can lead to performance improvements, particularly when there's variables being
-  declared inside the loop
+  declared inside the loop.
 \end{enumerate}
 
 \paragraph{Speed comparison}
@@ -306,14 +306,14 @@ between our implementation of E-DES and DES from libraries commonly used it's no
   \caption{Speed.cpp output.}
 \end{figure}
 
-Our C++ E-DES is around 10\% slower than Open SSL's DES, when tested in a AMD Ryzen 7 7735HS with 16Gb of RAM. E-DES encryption values almost don't fluctuate but
-DES times go up and down even sometimes surpassing E-DES's on average. This result is encouraging because we're comparing our proof-of-concept implementation of E-DES with Open 
+Our C++ E-DES is around 10\% slower than Open SSL's DES, when tested in a laptop witha a AMD Ryzen 7 7735HS and 16Gb of RAM. E-DES encryption values almost don't fluctuate but
+DES times go up and down even sometimes surpassing E-DES's on average. This results are encouraging because we're comparing our proof-of-concept implementation of E-DES with Open 
 SSL's very optimized production DES library.
 
 \section{Conclusions}
 
 At the architectural level, E-DES evolves DES by increasing the key length, by simplifying the encryption/decryption process and by generating S-Boxes that depend only
-on the key. We proved its feasibility by developing two implementation of the algorithm and by performing various. E-DES have shown to be 
-a clearly viable cipher.
+on the key. We proved its feasibility by developing two implementation of the algorithm and by performing various tests. E-DES have shown to be 
+a viable cipher.
 
 \end{document}

@@ -20,4 +20,4 @@ E-DES uses a 256 bit key, maintains the block size, removes both permutation box
 
 ## Test
 
-Read README.md inside the implmentation directory (/cpp, /python).
+Read README.md inside the implementation directory (/cpp, /python).
