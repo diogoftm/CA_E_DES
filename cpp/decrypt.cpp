@@ -120,7 +120,7 @@ int main(int argc, char const *argv[])
     {
         if (strcmp(argv[1], "-h") == 0)
         {
-            std::cout << "usage: ./encrypt <password> <ciphertext> [-s]\n";
+            std::cout << "usage: ./encrypt <password> [-s]\n";
             return 0;
         }
     }

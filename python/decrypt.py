@@ -48,15 +48,16 @@ if __name__ == "__main__":
     # Check command line arguments
     if len(sys.argv) == 2:
         if sys.argv[1] == "-h":
-            print("usage: python3 decrypt.py <password> <ciphertext> [-s]")
+            print("usage: python3 decrypt.py <password> [-s]")
             sys.exit(0)
     else:
-        if sys.argv[2] == "-s":
-            standardDESFlag = True
-        elif len(sys.argv) == 2:
-            print("Invalid flag. Use -h for help.")
-            sys.exit(1)
-        else:
+        try:
+            if sys.argv[2] == "-s":
+                standardDESFlag = True
+            elif len(sys.argv) == 2:
+                print("Invalid flag. Use -h for help.")
+                sys.exit(1)
+        except:
             print("Invalid number of arguments. Use -h for help.")
             sys.exit(1)
 
