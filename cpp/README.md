@@ -31,7 +31,7 @@ echo "My plaintext" | ./encrypt pswd123
 Optionally the '-s' can be added to the end of the command in order to use the standard DES:
 
 ``` bash
-echo "My plaintext" | ./encrypt pswd123 "My plaintext" -s
+echo "My plaintext" | ./encrypt pswd123 -s
 ```
 
 *Note*: When using running it using the input from the keyboard, you can type and change line as you like, to submit just press ctrl+d .

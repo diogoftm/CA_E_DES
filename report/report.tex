@@ -87,7 +87,7 @@ The main operations are done in a Feistel Network and \textit{f} function.
 \begin{algorithm}[H]
   \caption{Feistel Network}
   \begin{algorithmic}[1]
-
+  \State Initialize array $in$ with 8 bytes (a block)
   \State $l[4] \gets \{in[0], in[1], in[2], in[3]\}$
   \State $r[4] \gets \{in[4], in[5], in[6], in[7]\}$
   \State $rf \gets$ \Call{f}{$r, sbox$}
@@ -139,11 +139,11 @@ This process goes on for the 4 bytes. See the algorithm above for a more impleme
       \State Initialize array $in$ with 8 bytes (a block)
       \State $l[4] \gets \{in[0], in[1], in[2], in[3]\}$
       \State $r[4] \gets \{in[4], in[5], in[6], in[7]\}$
-      \State $rf \gets$ \Call{f}{$r, sbox$}
+      \State $lf \gets$ \Call{f}{$l, sbox$}
       \State $result \gets$ \textbf{new} $uint8\_t[8]$
       \For{$i \gets 0$ to $3$}
-          \State $result[i + 4] \gets l[i] \oplus rf[i]$
-          \State $result[i] \gets r[i]$
+          \State $result[i] \gets r[i] \oplus lf[i]$
+          \State $result[i + 4] \gets l[i]$
       \EndFor
       \State \textbf{return} $result$
   \end{algorithmic}
@@ -151,8 +151,8 @@ This process goes on for the 4 bytes. See the algorithm above for a more impleme
 
 The decryption is very similar to the encryption. There are only two differences. The S-Boxes are used in reverse order and the Feistel Networks does
 its operations in reverse. So, the network starts by spliting the 64 bit block of the ciphertext into two 32 bit blocks,
-the most significant one is processed by the \textit{f} function and the output of the network is the most significant 32 bit block appended to the result of a xor operation between 
-the less significant block and the output of the \textit{f} function.
+the most significant one is processed by the \textit{f} function and the output of the network is the result of a xor operation between 
+the less significant block and the output of the \textit{f} function appended to the most significant 32 bits.
 
 \subsection{S-Boxes Generation}
 \label{sboxgen}
@@ -313,7 +313,7 @@ SSL's very optimized production DES library.
 \section{Conclusions}
 
 At the architectural level, E-DES evolves DES by increasing the key length, by simplifying the encryption/decryption process and by generating S-Boxes that depend only
-on the key. We proved its feasibility by developing two implementation of the algorithm and by performing various tests. E-DES have shown to be 
+on the key. We proved its feasibility by developing two implementation of the algorithm and by performing various tests. E-DES have showed to be 
 a viable cipher.
 
 \end{document}
