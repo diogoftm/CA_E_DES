@@ -80,4 +80,4 @@ if __name__ == "__main__":
     plaintext = remove_pkcs7_padding(plaintext)
 
     # Output
-    print(plaintext.decode("utf-8"), end="")
+    print(plaintext.decode("utf-8")) # plaintext with an added '\n'
