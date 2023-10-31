@@ -60,11 +60,11 @@
 Data Encryption Standard (DES) was developed in the early 70's and was considered secure and became quite popular. It uses a 56 bit key and block sizes of 64 bits performing 
 16 round of Feistel Networks and permutations in the beginning and at the end. The secrecy behind the values used in used in the S-Boxes led to concerns of possible
 hiden trapdoors and, most importantly, the key size has been too small for more than two decades. Its lack of security can be solved by the means of cipher modes. Another
-aspect that is not desirable is how slow the DES is compared to its competition.
+aspect that is not desirable is how slow DES is compared to its competition(e.g. AES).
 
 In this project we introduce a new cipher called Enhanced Data Encryption Standard (E-DES) that mainly aims to twist DES in order to be more secure and faster. 
-E-DES uses a 256 bit key, maintains the block size, removes both permutation boxes, it does not use sub-keys either, and the creation of the S-Boxes depends only on the key. In this report we go into 
-further detail about the main aspects of E-DES, we give a brief overview of our implementation and discuss the results.
+E-DES uses a 256 bit key, maintains the block size, removes both permutation boxes, it does not use sub-keys, and the creation of the S-Boxes depends only on the key. In this report we go into 
+further detail about the main aspects of E-DES giving a brief overview of the implementation and discuss the results.
 
 \section{Implementation}
 \begin{tcolorbox}
@@ -80,7 +80,7 @@ The encryption using E-DES processes a 64 bit block through 16 distinct layers o
 Each Feistel Network will mix and transform the data using a S-Box generated from the key and more
 operation in order to mask the determinism of the algorithm. 
 
-The main operations are done in a Feistel Network and \textit{f} function.
+The main operations are done by a Feistel Network and \textit{f} function.
 
 \subsubsection{Feistel Network}
 
@@ -126,7 +126,7 @@ the most significant block and the output of the \textit{f} function.
 \end{algorithm}
 
 A \textit{f} function is used by a Feistel Network in order to create confusion on the input block.
-This function recieves a block of 32 bits and the S-Box to used. The most significant byte of the output is 
+This function recieves a block of 32 bits and the S-Box to be used. The most significant byte of the output is 
 the result of the S-Box for the less significant byte. For the next byte (2nd most significant) in the 
 output is the result of the S-Box for an input with the sum modulo 256 of the two input bytes in the higher memory addresses.
 This process goes on for the 4 bytes. See the algorithm above for a more implementation-like algorithm representation.
@@ -249,36 +249,36 @@ In the final phase of the algorithm, S-boxes are filled according to a shuffled 
 
 \subsection{Security}
 There is no straightforward method to evaluate a cryptographic algoritm such as a cipher. But there are some metrics that are usually indicative of its quality, 
-we explore some of them here.
+we explore three of them here.
 
 \paragraph{Bits of security}
-The number of n bits of security is good interesting measure since an attacker would need to perform $2^{n}$ operations to crack the cipher. In the case in hand, an operation
-is a decryption using an arbitrary key. This measure shows how good is the cipher agains a brute force attack.
+The number of bits of security(\textit{n}) is an interesting measure since an attacker would need to perform $2^{n}$ operations to crack the cipher. In the case in hand, an operation
+is a decryption using an arbitrary key. This measure shows how good the cipher is agains a brute force attack.
 Nowadays any value from 128 forward is considered secure. E-DES has 256-bits of security, DES has only 56.
 
 \paragraph{Number of confusion bits}
 Confusion is one of the two most important characteristics of a cipher. It defines the relation between the key and the produced ciphertext, the outout bits should be 
 highly dependent on the key. Confusion is inducted by the S-Boxes, the discussion at \autoref{sboxgen} shows good signs for the properties of the S-Boxes. 
-In order to measure confusion, despite it doesn't prove cipher security alone, is to calculate, on average, how many bits change in the 
+In order to measure confusion we calculate, on average, how many bits change in the 
 ciphertext when changing just one bit of the key. We call this the number of confusion bits.
 
-Idealy the number of confusion bits should be block\_size/2. For a 64 bit block cipher (such as E-DES), 32 is the number to ideally expect. A script was developed in order
-to test this that can be found in /cpp/test.cpp. The results show that the number of confusion bits for E-DES is 32.
+Ideally the number of confusion bits should be $block\_size/2$. For a 64 bit block cipher (such as E-DES), 32 is the number to expect. A script was developed in order
+to test this (/cpp/test.cpp). The results show that the number of confusion bits for E-DES is 32.
 
 \paragraph{Number of diffusion bits}
 Difusion is a desirable property in a cipher because one small change in the plaintext will lead to a big change in the ciphertext. 
-The way to measure diffusion is done changing just one bit in the plaintext and compare to the ciphertext generated for the original plaintext. By counting the average number
+The way to measure diffusion is done by changing just one bit in the plaintext and compare the output to the ciphertext generated for the original plaintext. By counting the average number
 of changed bits, we're able to have a metric for diffusion. 
 
-Idealy the number of diffusion bits should be block\_size/2. For a 64 bit block cipher (such as E-DES), 32 is the number to ideally expect. A script was developed in order
-to test this that can be found in /cpp/test.cpp. The results show that the number of diffusion bits for E-DES is 32.
+Ideally the number of diffusion bits should be $block\_size/2$. For a 64 bit block cipher (such as E-DES), 32 is the number to expect. A script was developed in order
+to test this (/cpp/test.cpp). The results show that the number of diffusion bits for E-DES is 32.
 
 
-\subsubsection{Speed}
+\subsection{Speed}
 \label{speedinp}
 \paragraph{Speed improvement methodologies used}
 
-Apart from basic good pratices, we used the following thecniques:
+Apart from basic good pratices, we used the following techniques:
 \begin{enumerate}
   \item Code profiling - the usage of a profiler, we used gprof for c++, can pinpoint the critical places of the code. By giving metrics such as the number of 
   times a method was called and the time it spend executing it, it is possible to know where to optimize;
@@ -292,12 +292,12 @@ Apart from basic good pratices, we used the following thecniques:
 
 \paragraph{Speed comparison}
 
-After implementing the E-DES libraries (C++ and Python), we made some test using the speed program in order to compare the performance of our implementation
-of E-DES compared to the implementation of DES by famous libraries. E-DES should be a faster algorithm because of its architecture. But, as is well know, the code metters
-when it comes to time performance. So, based on the first implementation, we deployed some thecniques to refactor the code to be faster.
+After implementing the E-DES libraries (C++ and Python), we did some speed tests using the speed program(speed.ccp, speed.py) in order to compare the performance of our implementation
+of E-DES compared to the implementation of DES by famous libraries. E-DES should be a faster algorithm because of its architecture. But, as is it's well known, the code matters
+when it comes to time performance.
 
 For the C++ implementation we applied the thecniques enumerated before in order to improve the speed of encryption and decryption. The Python implementation was developed only to prove that
-the algorithm can be implemented in any language. In a production scenario, the Python's E-DES library would only be a interface to the C++ implementation and that's  why the comparison
+the algorithm can be implemented in any language. In a production scenario, Python's E-DES library would only be a interface to the C++ implementation and that's  why the comparison
 between our implementation of E-DES and DES from libraries commonly used it's not appropriate.
 
 \begin{figure}[h]
@@ -306,7 +306,7 @@ between our implementation of E-DES and DES from libraries commonly used it's no
   \caption{Speed.cpp output.}
 \end{figure}
 
-Our C++ E-DES is around 10\% slower than Open SSL's DES, when tested in a laptop witha a AMD Ryzen 7 7735HS and 16Gb of RAM. E-DES encryption values almost don't fluctuate but
+Our C++ E-DES is around 10\% slower than Open SSL's DES, when tested in a laptop with a AMD Ryzen 7 7735HS and 16Gb of RAM. E-DES encryption values almost don't fluctuate but
 DES times go up and down even sometimes surpassing E-DES's on average. This results are encouraging because we're comparing our proof-of-concept implementation of E-DES with Open 
 SSL's very optimized production DES library.
 
