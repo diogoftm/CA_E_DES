@@ -233,7 +233,7 @@ Considering that S-boxes occupy 4096 bytes, it's essential to have a sufficientl
 
 The reason for hashing all the values with the key is to prevent the recovery of the right side of the vector if a single hash value is discovered. This additional layer of security ensures that, without the key, generating the remaining bytes becomes infeasible.
 
-In the second step, a sorted array containing values from 0 to 4096 is subjected to a shuffling process. There are two primary reasons why the array begins in a sorted state with unique values:
+In the second step, a sorted array containing values from 0 to 4095 is subjected to a shuffling process. There are two primary reasons why the array begins in a sorted state with unique values:
 
 \begin{enumerate}
 \item To ensure determinism in the algorithm, it's crucial for the array to start in a unique configuration, guaranteeing consistent output for the same input.
