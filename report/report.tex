@@ -286,8 +286,8 @@ Apart from basic good pratices, we used the following techniques:
   statements because it the number of iteration was hardcoded, by doing that at least the program doesn't need to perform jump instructions to perform the cycle;
   \item Code batching - method calls are expensive, batching the code into less methods it can lead to performance improvements. This thecniques usually causes the code 
   to be less readable. Batching together the f function and the Feistel Network into a block processing method had a great positive impact;
-  \item Hoisting - by removing some part of the code from inside of a loop to outside can lead to performance improvements, particularly when there's variables being
-  declared inside the loop.
+  \item Hoisting - by removing some part of the code from inside of a loop to outside can lead to performance improvements, particularly when there's independent variables being
+  assigned inside the loop.
 \end{enumerate}
 
 \paragraph{Speed comparison}
